@@ -13,7 +13,7 @@ public class UltraSoundSensorService1 {
             .provisionDigitalOutputPin(RaspiPin.GPIO_07); // Trigger pin as OUTPUT
     private static final GpioPinDigitalInput sensorEchoPin = gpio
             .provisionDigitalInputPin(RaspiPin.GPIO_00, PinPullResistance.PULL_DOWN); // Echo pin as INPUT
-    private static boolean isStop;
+    private static boolean isStop = false;
     private double distance = 0;
 
     @Async
@@ -34,8 +34,7 @@ public class UltraSoundSensorService1 {
                 }
                 long endTime = System.nanoTime(); // Store the echo pin HIGH end time to calculate ECHO pin HIGH time.
                 distance = ((((endTime - startTime) / 1e3) / 2) / 29.1);
-//                System.out.println("Distance :" + distance + " cm"); //Printing out the distance in cm
-//                Thread.sleep(1000);
+                Thread.sleep(100);
 
             } catch (InterruptedException e) {
                 e.printStackTrace();

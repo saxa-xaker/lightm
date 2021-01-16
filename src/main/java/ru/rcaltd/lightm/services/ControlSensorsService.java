@@ -143,52 +143,5 @@ public class ControlSensorsService {
         relayService4.relayOff();
         relayService5.relayOff();
         relayService6.relayOff();
-
-    }
-
-    public void mainCycle() {
-        systemStartIdle();
-
-        while (!isStop) {
-            if (ultraSoundSensorService1.getState().equals("HIGH")) {
-                relayService1.relayOn();
-                relayService2.relayOff();
-                systemStart1();
-            }
-
-            if (ultraSoundSensorService2.getState().equals("HIGH")) {
-                relayService1.relayOff();
-                relayService2.relayOn();
-                relayService3.relayOff();
-                systemStart2();
-            }
-
-            if (ultraSoundSensorService3.getState().equals("HIGH")) {
-                relayService2.relayOff();
-                relayService3.relayOn();
-                relayService4.relayOff();
-                systemStart3();
-            }
-
-            if (ultraSoundSensorService4.getState().equals("HIGH")) {
-                relayService3.relayOff();
-                relayService4.relayOn();
-                relayService5.relayOff();
-                systemStart4();
-            }
-
-            if (ultraSoundSensorService5.getState().equals("HIGH")) {
-                relayService4.relayOff();
-                relayService5.relayOn();
-                relayService6.relayOff();
-                systemStart5();
-            }
-
-            if (ultraSoundSensorService6.getState().equals("HIGH")) {
-                relayService5.relayOff();
-                relayService6.relayOn();
-                systemStart6();
-            }
-        }
     }
 }
