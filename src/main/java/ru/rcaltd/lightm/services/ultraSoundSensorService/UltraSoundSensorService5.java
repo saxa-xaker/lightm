@@ -47,9 +47,14 @@ public class UltraSoundSensorService5 {
     }
 
     public String getState() {
-        return sensorEchoPin.getState().toString();
+        String state;
+        if (distance > 40 && distance < 150) {
+            state = "HIGH";
+        } else {
+            state = "LOW";
+        }
+        return state;
     }
-
     public double getDistance() {
         return distance;
     }

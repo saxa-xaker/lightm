@@ -13,20 +13,21 @@ public class UltraSoundSensorService1 {
             .provisionDigitalOutputPin(RaspiPin.GPIO_07); // Trigger pin as OUTPUT
     private static final GpioPinDigitalInput sensorEchoPin = gpio
             .provisionDigitalInputPin(RaspiPin.GPIO_00, PinPullResistance.PULL_DOWN); // Echo pin as INPUT
-    private static boolean isStoped;
+    private static boolean isStop;
     private double distance = 0;
 
     @Async
     public void monitorStart() {
-        isStoped = false;
-        while (!isStoped) {
+        isStop = false;
+        while (!isStop) {
             try {
                 Thread.sleep(250);
                 sensorTriggerPin.high(); // Make trigger pin HIGH
                 Thread.sleep((long) 0.01);// Delay for 10 microseconds
                 sensorTriggerPin.low(); //Make trigger pin LOW
 
-                while (sensorEchoPin.isLow()) { //Wait until the ECHO pin gets HIGH
+                //Wait until the ECHO pin gets HIGH
+                while (sensorEchoPin.isLow()) {
                 }
                 long startTime = System.nanoTime(); // Store the surrent time to calculate ECHO pin HIGH time.
                 while (sensorEchoPin.isHigh()) { //Wait until the ECHO pin gets LOW
@@ -43,7 +44,7 @@ public class UltraSoundSensorService1 {
     }
 
     public void monitorStop() {
-        isStoped = true;
+        isStop = true;
     }
 
     public double getDistance() {
@@ -51,7 +52,13 @@ public class UltraSoundSensorService1 {
     }
 
     public String getState() {
-        return sensorEchoPin.getState().toString();
+        String state;
+        if (distance > 40 && distance < 150) {
+            state = "HIGH";
+        } else {
+            state = "LOW";
+        }
+        return state;
     }
 
     public void setDistanceZero() {
