@@ -1,9 +1,11 @@
-package ru.rcaltd.lightm.services.ultraSoundSensorService;
+package ru.rcaltd.lightm.services;
 
 import org.springframework.scheduling.annotation.Async;
-import ru.rcaltd.lightm.services.ControlSensorsService;
+import org.springframework.stereotype.Service;
 import ru.rcaltd.lightm.services.relayService.*;
+import ru.rcaltd.lightm.services.ultraSoundSensorService.*;
 
+@Service
 public class MainCycleService {
 
     final ControlSensorsService controlSensorsService;

@@ -49,14 +49,20 @@ public class ControlSensorsService {
 
     //Main idle position
     public void systemStartIdle() {
-        if (!isStop)
+        isStop = false;
+        System.out.println("systemStartIdle Started");
+        if (!isStop) {
             ultraSoundSensorService1.monitorStart();
+            System.out.println("monitor -1- Started");
+        }
         ultraSoundSensorService2.monitorStop();
         ultraSoundSensorService3.monitorStop();
         ultraSoundSensorService4.monitorStop();
         ultraSoundSensorService5.monitorStop();
-        if (!isStop)
+        if (!isStop) {
             ultraSoundSensorService6.monitorStart();
+            System.out.println("monitor -6- Started");
+        }
     }
 
     //First position
@@ -143,5 +149,6 @@ public class ControlSensorsService {
         relayService4.relayOff();
         relayService5.relayOff();
         relayService6.relayOff();
+        System.out.println("-ALL- Stopped");
     }
 }
