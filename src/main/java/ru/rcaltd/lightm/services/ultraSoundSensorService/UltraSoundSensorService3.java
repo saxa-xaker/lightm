@@ -10,7 +10,7 @@ public class UltraSoundSensorService3 {
     final static GpioController gpio = GpioFactory.getInstance();
 
     private static final GpioPinDigitalOutput sensorTriggerPin = gpio
-            .provisionDigitalOutputPin(RaspiPin.GPIO_03); // Trigger pin as OUTPUT
+            .provisionDigitalOutputPin(RaspiPin.GPIO_21); // Trigger pin as OUTPUT
     private static final GpioPinDigitalInput sensorEchoPin = gpio
             .provisionDigitalInputPin(RaspiPin.GPIO_04, PinPullResistance.PULL_DOWN); // Echo pin as INPUT
     private static boolean isStoped;

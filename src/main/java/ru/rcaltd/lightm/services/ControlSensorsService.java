@@ -27,6 +27,7 @@ public class ControlSensorsService {
     final RelayService6 relayService6;
     private boolean isStop = false;
 
+
     public ControlSensorsService(UltraSoundSensorService1 ultraSoundSensorService1,
                                  UltraSoundSensorService2 ultraSoundSensorService2,
                                  UltraSoundSensorService3 ultraSoundSensorService3,
@@ -47,93 +48,94 @@ public class ControlSensorsService {
         this.relayService6 = relayService6;
     }
 
-    //Main idle position
-    public void systemStartIdle() {
-        isStop = false;
-        System.out.println("systemStartIdle Started");
-        if (!isStop) {
-            ultraSoundSensorService1.monitorStart();
-            System.out.println("monitor -1- Started");
-        }
-        ultraSoundSensorService2.monitorStop();
-        ultraSoundSensorService3.monitorStop();
-        ultraSoundSensorService4.monitorStop();
-        ultraSoundSensorService5.monitorStop();
-        if (!isStop) {
-            ultraSoundSensorService6.monitorStart();
-            System.out.println("monitor -6- Started");
-        }
-    }
+//
+//    //Main idle position
+//    public void systemStartIdle() {
+//        isStop = false;
+//        System.out.println("systemStartIdle Started");
+//        if (!isStop) {
+//            ultraSoundSensorService1.monitorStart();
+//            System.out.println("monitor -1- Started");
+//        }
+//        ultraSoundSensorService2.monitorStop();
+//        ultraSoundSensorService3.monitorStop();
+//        ultraSoundSensorService4.monitorStop();
+//        ultraSoundSensorService5.monitorStop();
+//        if (!isStop) {
+//            ultraSoundSensorService6.monitorStart();
+//            System.out.println("monitor -6- Started");
+//        }
+//    }
+//
+//    //First position
+//    public void systemStart1() {
+//        ultraSoundSensorService1.monitorStop(); //person here
+//        if (!isStop)
+//            ultraSoundSensorService2.monitorStart();
+//        System.out.println("monitor -2- Started");
+//        ultraSoundSensorService3.monitorStop();
+//        ultraSoundSensorService4.monitorStop();
+//        ultraSoundSensorService5.monitorStop();
+//        ultraSoundSensorService6.monitorStop();
+//    }
+//
+//    //Second position
+//    public void systemStart2() {
+//        if (!isStop)
+//            ultraSoundSensorService1.monitorStart();
+//        ultraSoundSensorService2.monitorStop(); //person here
+//        if (!isStop)
+//            ultraSoundSensorService3.monitorStart();
+//        System.out.println("monitor -2- Started");
+//
+//    }
 
-    //First position
-    public void systemStart1() {
-        ultraSoundSensorService1.monitorStop(); //person here
-        if (!isStop)
-            ultraSoundSensorService2.monitorStart();
-        ultraSoundSensorService3.monitorStop();
-        ultraSoundSensorService4.monitorStop();
-        ultraSoundSensorService5.monitorStop();
-        ultraSoundSensorService6.monitorStop();
-    }
-
-    //Second position
-    public void systemStart2() {
-        if (!isStop)
-            ultraSoundSensorService1.monitorStart();
-        ultraSoundSensorService2.monitorStop(); //person here
-        if (!isStop)
-            ultraSoundSensorService3.monitorStart();
-        ultraSoundSensorService4.monitorStop();
-        ultraSoundSensorService5.monitorStop();
-        ultraSoundSensorService6.monitorStop();
-    }
-
-    //Third position
-    public void systemStart3() {
-        ultraSoundSensorService1.monitorStop();
-        if (!isStop)
-            ultraSoundSensorService2.monitorStart();
-        ultraSoundSensorService3.monitorStop(); //person here
-        if (!isStop)
-            ultraSoundSensorService4.monitorStart();
-        ultraSoundSensorService5.monitorStop();
-        ultraSoundSensorService6.monitorStop();
-    }
-
-    //Fourth position
-    public void systemStart4() {
-        ultraSoundSensorService1.monitorStop();
-        ultraSoundSensorService2.monitorStop();
-        if (!isStop)
-            ultraSoundSensorService3.monitorStart();
-        ultraSoundSensorService4.monitorStop(); //person here
-        if (!isStop)
-            ultraSoundSensorService5.monitorStart();
-        ultraSoundSensorService6.monitorStop();
-    }
-
-    //Fifth position
-    public void systemStart5() {
-        ultraSoundSensorService1.monitorStop();
-        ultraSoundSensorService2.monitorStop();
-        ultraSoundSensorService3.monitorStop();
-        if (!isStop)
-            ultraSoundSensorService4.monitorStart();
-        ultraSoundSensorService5.monitorStop(); //person here
-        if (!isStop)
-            ultraSoundSensorService6.monitorStart();
-    }
-
-    //Sixth position
-    public void systemStart6() {
-        ultraSoundSensorService1.monitorStop();
-        ultraSoundSensorService2.monitorStop();
-        ultraSoundSensorService3.monitorStop();
-        ultraSoundSensorService4.monitorStop();
-        if (!isStop)
-            ultraSoundSensorService5.monitorStart();
-        ultraSoundSensorService6.monitorStop(); //person here
-    }
+//    //Third position
+//    public void systemStart3() {
+//        ultraSoundSensorService1.monitorStop();
+//        if (!isStop)
+//            ultraSoundSensorService2.monitorStart();
+//        ultraSoundSensorService3.monitorStop(); //person here
+//        if (!isStop)
+//            ultraSoundSensorService4.monitorStart();
+//        ultraSoundSensorService5.monitorStop();
+//        ultraSoundSensorService6.monitorStop();
+//    }
+//
+//    //Fourth position
+//    public void systemStart4() {
+//        ultraSoundSensorService1.monitorStop();
+//        ultraSoundSensorService2.monitorStop();
+//        if (!isStop)
+//            ultraSoundSensorService3.monitorStart();
+//        ultraSoundSensorService4.monitorStop(); //person here
+//        if (!isStop)
+//            ultraSoundSensorService5.monitorStart();
+//        ultraSoundSensorService6.monitorStop();
+//    }
+//
+//    //Fifth position
+//    public void systemStart5() {
+//        ultraSoundSensorService1.monitorStop();
+//        ultraSoundSensorService2.monitorStop();
+//        ultraSoundSensorService3.monitorStop();
+//        if (!isStop)
+//            ultraSoundSensorService4.monitorStart();
+//        ultraSoundSensorService5.monitorStop(); //person here
+//        if (!isStop)
+//            ultraSoundSensorService6.monitorStart();
+//    }
+//
+//    //Sixth position
+//    public void systemStart6() {
+//        ultraSoundSensorService1.monitorStop();
+//        ultraSoundSensorService2.monitorStop();
+//        ultraSoundSensorService3.monitorStop();
+//        ultraSoundSensorService4.monitorStop();
+//        if (!isStop)
+//            ultraSoundSensorService5.monitorStart();
+//        ultraSoundSensorService6.monitorStop(); //person here
+//    }
 
     public void systemStop() {
         isStop = true;

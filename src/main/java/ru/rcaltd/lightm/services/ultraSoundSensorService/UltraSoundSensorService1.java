@@ -13,13 +13,12 @@ public class UltraSoundSensorService1 {
             .provisionDigitalOutputPin(RaspiPin.GPIO_07); // Trigger pin as OUTPUT
     private static final GpioPinDigitalInput sensorEchoPin = gpio
             .provisionDigitalInputPin(RaspiPin.GPIO_00, PinPullResistance.PULL_DOWN); // Echo pin as INPUT
-    private static boolean isStop = false;
+    private boolean isStopped = false;
     private double distance = 0;
-
     @Async
     public void monitorStart() {
-        isStop = false;
-        while (!isStop) {
+        isStopped = false;
+        while (!isStopped) {
             try {
                 Thread.sleep(250);
                 sensorTriggerPin.high(); // Make trigger pin HIGH
@@ -27,14 +26,16 @@ public class UltraSoundSensorService1 {
                 sensorTriggerPin.low(); //Make trigger pin LOW
 
                 //Wait until the ECHO pin gets HIGH
-                while (sensorEchoPin.isLow()) {
+                while (!isStopped && sensorEchoPin.isLow()) {
+//                    System.out.println("Monitor -1- waiting LOW");
                 }
                 long startTime = System.nanoTime(); // Store the surrent time to calculate ECHO pin HIGH time.
-                while (sensorEchoPin.isHigh()) { //Wait until the ECHO pin gets LOW
+                while (!isStopped && sensorEchoPin.isHigh()) { //Wait until the ECHO pin gets LOW
+//                    System.out.println("Monitor -1- waiting HIGH");
                 }
                 long endTime = System.nanoTime(); // Store the echo pin HIGH end time to calculate ECHO pin HIGH time.
                 distance = ((((endTime - startTime) / 1e3) / 2) / 29.1);
-                Thread.sleep(100);
+                Thread.sleep(300);
 
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -43,7 +44,9 @@ public class UltraSoundSensorService1 {
     }
 
     public void monitorStop() {
-        isStop = true;
+        isStopped = true;
+        gpio.shutdown();
+        distance = 0;
     }
 
     public double getDistance() {
@@ -51,13 +54,10 @@ public class UltraSoundSensorService1 {
     }
 
     public String getState() {
-        String state;
-        if (distance > 40 && distance < 150) {
-            state = "HIGH";
-        } else {
-            state = "LOW";
+        if (distance > 10 && distance < 50) {
+            return "HIGH";
         }
-        return state;
+        return "LOW";
     }
 
     public void setDistanceZero() {

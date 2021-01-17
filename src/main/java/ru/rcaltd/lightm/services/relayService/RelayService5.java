@@ -1,9 +1,6 @@
 package ru.rcaltd.lightm.services.relayService;
 
-import com.pi4j.io.gpio.GpioController;
-import com.pi4j.io.gpio.GpioFactory;
-import com.pi4j.io.gpio.GpioPinDigitalOutput;
-import com.pi4j.io.gpio.RaspiPin;
+import com.pi4j.io.gpio.*;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,7 +9,7 @@ public class RelayService5 {
     final static GpioController gpio = GpioFactory.getInstance();
 
     private static final GpioPinDigitalOutput relayPin = gpio
-            .provisionDigitalOutputPin(RaspiPin.GPIO_26);
+            .provisionDigitalOutputPin(RaspiPin.GPIO_26, PinState.LOW);
 
     public void relayOn() {
 

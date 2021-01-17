@@ -28,6 +28,13 @@ public class MainCycleService {
     final RelayService5 relayService5;
     final RelayService6 relayService6;
     private boolean isStop = false;
+    boolean isStartedIdle = false;
+    boolean isStarted1 = false;
+    boolean isStarted2 = false;
+//    boolean isStarted3 = false;
+//    boolean isStarted4 = false;
+//    boolean isStarted5 = false;
+//    boolean isStarted6 = false;
 
     public MainCycleService(ControlSensorsService controlSensorsService, UltraSoundSensorService1 ultraSoundSensorService1,
                             UltraSoundSensorService2 ultraSoundSensorService2,
@@ -51,84 +58,53 @@ public class MainCycleService {
     }
 
     @Async
-    public void mainCycleStart() {
-        controlSensorsService.systemStartIdle();
+    public void mainCycleStart() throws InterruptedException {
         isStop = false;
+        ultraSoundSensorService1.monitorStart();
+        ultraSoundSensorService2.monitorStart();
+        System.out.println("monitor -ALL- Started");
+
         while (!isStop) {
             if (ultraSoundSensorService1.getState().equals("HIGH")) {
-                relayService1.relayOn();
-                relayService2.relayOff();
-                controlSensorsService.systemStart1();
-                System.out.println("1 <- You are here");
-                System.out.println("2");
-                System.out.println("3");
-                System.out.println("4");
-                System.out.println("5");
-                System.out.println("6");
+                if (!isStartedIdle) {
+                    relayService1.relayOn();
+                    relayService2.relayOff();
+                    isStartedIdle = true;
+                    isStarted1 = false;
+                }
+                if (!isStarted1) {
+                    System.out.println("1 <- You are here");
+                    System.out.println("2");
+                    System.out.println("3");
+                    System.out.println("4");
+                    System.out.println("5");
+                    System.out.println("6");
+                    relayService1.relayOn();
+                    relayService2.relayOff();
+                    isStartedIdle = false;
+                    isStarted1 = true;
+                    isStarted2 = false;
+                }
+
+                Thread.sleep(1500);
             }
 
             if (ultraSoundSensorService2.getState().equals("HIGH")) {
-                relayService1.relayOff();
-                relayService2.relayOn();
-                relayService3.relayOff();
-                controlSensorsService.systemStart2();
-                System.out.println("1");
-                System.out.println("2 <- You are here");
-                System.out.println("3");
-                System.out.println("4");
-                System.out.println("5");
-                System.out.println("6");
-            }
-
-            if (ultraSoundSensorService3.getState().equals("HIGH")) {
-                relayService2.relayOff();
-                relayService3.relayOn();
-                relayService4.relayOff();
-                controlSensorsService.systemStart3();
-                System.out.println("1");
-                System.out.println("2");
-                System.out.println("3 <- You are here");
-                System.out.println("4");
-                System.out.println("5");
-                System.out.println("6");
-            }
-
-            if (ultraSoundSensorService4.getState().equals("HIGH")) {
-                relayService3.relayOff();
-                relayService4.relayOn();
-                relayService5.relayOff();
-                controlSensorsService.systemStart4();
-                System.out.println("1");
-                System.out.println("2");
-                System.out.println("3");
-                System.out.println("4 <- You are here");
-                System.out.println("5");
-                System.out.println("6");
-            }
-
-            if (ultraSoundSensorService5.getState().equals("HIGH")) {
-                relayService4.relayOff();
-                relayService5.relayOn();
-                relayService6.relayOff();
-                controlSensorsService.systemStart5();
-                System.out.println("1");
-                System.out.println("2");
-                System.out.println("3");
-                System.out.println("4");
-                System.out.println("5 <- You are here");
-                System.out.println("6");
-            }
-
-            if (ultraSoundSensorService6.getState().equals("HIGH")) {
-                relayService5.relayOff();
-                relayService6.relayOn();
-                controlSensorsService.systemStart6();
-                System.out.println("1");
-                System.out.println("2");
-                System.out.println("3");
-                System.out.println("4");
-                System.out.println("5");
-                System.out.println("6 <- You are here");
+                if (!isStarted2) {
+                    System.out.println("1");
+                    System.out.println("2 <- You are here");
+                    System.out.println("3");
+                    System.out.println("4");
+                    System.out.println("5");
+                    System.out.println("6");
+                    relayService1.relayOff();
+                    relayService2.relayOn();
+                    relayService3.relayOff();
+                    isStartedIdle = false;
+                    isStarted1 = false;
+                    isStarted2 = true;
+                }
+                Thread.sleep(1500);
             }
         }
     }

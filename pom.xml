@@ -5,7 +5,7 @@
 
 	<groupId>ru.rcaltd</groupId>
 	<artifactId>lightm</artifactId>
-	<version>0.5-RELEASE</version>
+	<version>0.6-RELEASE</version>
 	<packaging>jar</packaging>
 
 	<name>lightm</name>
@@ -23,7 +23,17 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>11</java.version>
 	</properties>
-
+	<repositories>
+		<repository>
+			<id>oss-snapshots-repo</id>
+			<name>Sonatype OSS Maven Repository</name>
+			<url>https://oss.sonatype.org/content/groups/public</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
