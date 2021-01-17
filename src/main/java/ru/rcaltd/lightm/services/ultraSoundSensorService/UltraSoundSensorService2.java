@@ -35,7 +35,6 @@ public class UltraSoundSensorService2 {
                 }
                 long endTime = System.nanoTime(); // Store the echo pin HIGH end time to calculate ECHO pin HIGH time.
                 distance = ((((endTime - startTime) / 1e3) / 2) / 29.1);
-                Thread.sleep(300);
 
             } catch (InterruptedException e) {
                 e.printStackTrace();

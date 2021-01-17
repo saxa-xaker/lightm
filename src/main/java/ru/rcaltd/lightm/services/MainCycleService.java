@@ -27,14 +27,14 @@ public class MainCycleService {
     final RelayService4 relayService4;
     final RelayService5 relayService5;
     final RelayService6 relayService6;
-    private boolean isStop = false;
+    boolean isStarted3 = false;
     boolean isStartedIdle = false;
     boolean isStarted1 = false;
     boolean isStarted2 = false;
-//    boolean isStarted3 = false;
-//    boolean isStarted4 = false;
-//    boolean isStarted5 = false;
-//    boolean isStarted6 = false;
+    boolean isStarted4 = false;
+    boolean isStarted5 = false;
+    boolean isStarted6 = false;
+    private boolean isStopped = false;
 
     public MainCycleService(ControlSensorsService controlSensorsService, UltraSoundSensorService1 ultraSoundSensorService1,
                             UltraSoundSensorService2 ultraSoundSensorService2,
@@ -59,58 +59,145 @@ public class MainCycleService {
 
     @Async
     public void mainCycleStart() throws InterruptedException {
-        isStop = false;
+        int counter1 = 0;
+        int counter2 = 0;
+        isStopped = false;
+        isStartedIdle = true;
         ultraSoundSensorService1.monitorStart();
         ultraSoundSensorService2.monitorStart();
+        relayService1.relayOff();
+        relayService2.relayOff();
+
         System.out.println("monitor -ALL- Started");
 
-        while (!isStop) {
-            if (ultraSoundSensorService1.getState().equals("HIGH")) {
-                if (!isStartedIdle) {
-                    relayService1.relayOn();
-                    relayService2.relayOff();
-                    isStartedIdle = true;
-                    isStarted1 = false;
-                }
-                if (!isStarted1) {
-                    System.out.println("1 <- You are here");
-                    System.out.println("2");
-                    System.out.println("3");
-                    System.out.println("4");
-                    System.out.println("5");
-                    System.out.println("6");
-                    relayService1.relayOn();
-                    relayService2.relayOff();
-                    isStartedIdle = false;
-                    isStarted1 = true;
-                    isStarted2 = false;
-                }
+        while (!isStopped) {
 
-                Thread.sleep(1500);
+            if (isStartedIdle) {
+                relayService1.relayOff();
+                relayService2.relayOff();
+                System.out.println("System idle Started");
+                System.out.println("1");
+                System.out.println("2");
+                System.out.println("3");
+                System.out.println("4");
+                System.out.println("5");
+                System.out.println("6");
+                while (ultraSoundSensorService1.getState().equals("LOW")
+                        //                     &&  ultraSoundSensorService6.getState().equals("LOW")
+                        && !isStopped) {
+                    System.out.println("System IDLE");
+                    Thread.sleep(500);
+                }
+                // Sure, person stay at first sensor yet
+                if (ultraSoundSensorService1.getState().equals("HIGH")) {
+                    isStarted1 = true;
+                    isStartedIdle = false;
+                }
+//                if (ultraSoundSensorService6.getState().equals("HIGH")) {
+//                    isStarted6 = true;
+//                }
+                Thread.sleep(100);
             }
 
-            if (ultraSoundSensorService2.getState().equals("HIGH")) {
-                if (!isStarted2) {
-                    System.out.println("1");
-                    System.out.println("2 <- You are here");
-                    System.out.println("3");
-                    System.out.println("4");
-                    System.out.println("5");
-                    System.out.println("6");
-                    relayService1.relayOff();
-                    relayService2.relayOn();
-                    relayService3.relayOff();
-                    isStartedIdle = false;
+            if (isStarted1) {
+                relayService1.relayOn();
+                relayService2.relayOff();
+                System.out.println("1 <- You are here");
+                System.out.println("2");
+                System.out.println("3");
+                System.out.println("4");
+                System.out.println("5");
+                System.out.println("6");
+                isStartedIdle = false;
+                isStarted1 = true;
+                isStarted2 = false;
+
+                if (ultraSoundSensorService1.getState().equals("HIGH")) {
+                    while (ultraSoundSensorService1.getState().equals("HIGH")
+                            && !isStopped) {
+                        System.out.println("System waiting for the LOW signal from first sensor");
+                        Thread.sleep(100);
+                    }
+                    while (ultraSoundSensorService1.getState().equals("LOW")
+                            && !isStopped) {
+                        while (ultraSoundSensorService1.getState().equals("LOW") &&
+                                ultraSoundSensorService2.getState().equals("LOW") && counter1 < 10
+                                && !isStopped) {
+                            counter1++;
+                            Thread.sleep(100);
+
+                        }
+//                    System.out.println("System waiting for the signal from first or second sensor");
+                        break;
+                    }
                     isStarted1 = false;
-                    isStarted2 = true;
+                    if (ultraSoundSensorService1.getState().equals("LOW") && ultraSoundSensorService2.getState().equals("LOW")) {
+                        isStarted1 = false;
+                        isStarted2 = false;
+                        isStartedIdle = true;
+                    }
+                    if (ultraSoundSensorService1.getState().equals("HIGH") && ultraSoundSensorService2.getState().equals("LOW")) {
+                        isStarted1 = true;
+                    }
+                    if (ultraSoundSensorService1.getState().equals("LOW") && ultraSoundSensorService2.getState().equals("HIGH")) {
+                        isStarted2 = true;
+                    }
                 }
-                Thread.sleep(1500);
+                counter1 = 0;
+                Thread.sleep(100);
+            }
+
+            if (isStarted2) {
+                relayService1.relayOff();
+                relayService2.relayOn();
+                System.out.println("1");
+                System.out.println("2 <- You are here");
+                System.out.println("3");
+                System.out.println("4");
+                System.out.println("5");
+                System.out.println("6");
+                isStartedIdle = false;
+                isStarted1 = false;
+                isStarted2 = true;
+
+                if (ultraSoundSensorService2.getState().equals("HIGH")) {
+                    while (ultraSoundSensorService2.getState().equals("HIGH")
+                            && !isStopped) {
+                        System.out.println("System waiting for the LOW signal from second sensor");
+                        Thread.sleep(100);
+                    }
+                    while (ultraSoundSensorService2.getState().equals("LOW")
+                            && !isStopped) {
+                        while (ultraSoundSensorService2.getState().equals("LOW") &&
+                                ultraSoundSensorService1.getState().equals("LOW") && counter2 < 10
+                                && !isStopped) {
+                            counter2++;
+                            Thread.sleep(100);
+
+                        }
+//                    System.out.println("System waiting for the signal from first or second sensor");
+                        break;
+                    }
+                    isStarted2 = false;
+                    if (ultraSoundSensorService2.getState().equals("LOW") && ultraSoundSensorService1.getState().equals("LOW")) {
+                        isStarted1 = false;
+                        isStarted2 = false;
+                        isStartedIdle = true;
+                    }
+                    if (ultraSoundSensorService1.getState().equals("HIGH") && ultraSoundSensorService2.getState().equals("LOW")) {
+                        isStarted1 = true;
+                    }
+                    if (ultraSoundSensorService1.getState().equals("LOW") && ultraSoundSensorService2.getState().equals("HIGH")) {
+                        isStarted2 = true;
+                    }
+                }
+                counter2 = 0;
+                Thread.sleep(100);
             }
         }
     }
-
     public void mainCycleStop() {
-        isStop = true;
+        isStopped = true;
         controlSensorsService.systemStop();
     }
 }
