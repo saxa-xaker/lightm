@@ -5,21 +5,21 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UltraSoundSensorService3 {
+public class USSS5 {
 
     final static GpioController gpio = GpioFactory.getInstance();
 
     private static final GpioPinDigitalOutput sensorTriggerPin = gpio
-            .provisionDigitalOutputPin(RaspiPin.GPIO_21); // Trigger pin as OUTPUT
+            .provisionDigitalOutputPin(RaspiPin.GPIO_13); // Trigger pin as OUTPUT
     private static final GpioPinDigitalInput sensorEchoPin = gpio
-            .provisionDigitalInputPin(RaspiPin.GPIO_04, PinPullResistance.PULL_DOWN); // Echo pin as INPUT
-    private static boolean isStoped;
+            .provisionDigitalInputPin(RaspiPin.GPIO_06, PinPullResistance.PULL_DOWN); // Echo pin as INPUT
+    private static boolean isStopped;
     private double distance = 0;
 
     @Async
     public void monitorStart() {
-        isStoped = false;
-        while (!isStoped) {
+        isStopped = false;
+        while (!isStopped) {
             try {
                 Thread.sleep(250);
                 sensorTriggerPin.high(); // Make trigger pin HIGH
@@ -28,7 +28,7 @@ public class UltraSoundSensorService3 {
 
                 while (sensorEchoPin.isLow()) { //Wait until the ECHO pin gets HIGH
                 }
-                long startTime = System.nanoTime(); // Store the surrent time to calculate ECHO pin HIGH time.
+                long startTime = System.nanoTime(); // Store the current time to calculate ECHO pin HIGH time.
                 while (sensorEchoPin.isHigh()) { //Wait until the ECHO pin gets LOW
                 }
                 long endTime = System.nanoTime(); // Store the echo pin HIGH end time to calculate ECHO pin HIGH time.
@@ -37,28 +37,21 @@ public class UltraSoundSensorService3 {
 
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                gpio.shutdown();
             }
         }
     }
 
     public void monitorStop() {
-        isStoped = true;
+        isStopped = true;
+        gpio.shutdown();
+        distance = 0;
     }
 
     public String getState() {
-        String state;
-        if (distance > 40 && distance < 150) {
-            state = "HIGH";
-        } else {
-            state = "LOW";
+        if (distance > 20 && distance < 50) {
+            return "HIGH";
         }
-        return state;
-    }
-    public double getDistance() {
-        return distance;
-    }
-
-    public void setDistanceZero() {
-        distance = 0;
+        return "LOW";
     }
 }

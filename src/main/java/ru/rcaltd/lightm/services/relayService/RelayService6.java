@@ -9,7 +9,7 @@ public class RelayService6 {
     final static GpioController gpio = GpioFactory.getInstance();
 
     private static final GpioPinDigitalOutput relayPin = gpio
-            .provisionDigitalOutputPin(RaspiPin.GPIO_27, PinState.LOW);
+            .provisionDigitalOutputPin(RaspiPin.GPIO_21, PinState.LOW);
 
     public void relayOn() {
 
