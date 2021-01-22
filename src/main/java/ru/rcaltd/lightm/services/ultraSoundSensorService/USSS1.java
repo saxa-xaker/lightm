@@ -17,14 +17,11 @@ public class USSS1 {
     private final static long MAX_WAIT = 400L;
     private final static boolean DEBUG = false;
     final RS1 rs1;
-    private boolean isOn;
 
     public USSS1(RS1 rs1) {
         this.rs1 = rs1;
     }
 
-
-    //   @Async
     public void monitorStart() throws InterruptedException {
         System.out.println("GPIO Control - Range Sensor HC-SR04.");
         System.out.println("Will stop is distance is smaller than " + MIN_DIST + " cm");
@@ -91,21 +88,19 @@ public class USSS1 {
                     double distance = pulseDuration * DIST_FACT;
 
                     if (distance > 10 && distance < MIN_DIST) {
-//                        isOn = true;
                         if (!rs1.getState())
                             rs1.relayOn();
-                        //    Thread.sleep(500);
                     } else {
                         if (distance < 0) {
                             go = false;
                             System.out.println("Dist:" + distance + ", start:" + start + ", end:" + end);
                         }
                         try {
-//                            isOn = false;
                             Thread.sleep(BETWEEN_LOOPS);
                             if (rs1.getState())
                                 rs1.relayOff();
                         } catch (Exception ex) {
+                            ex.printStackTrace();
                         }
                     }
                 } else {
@@ -119,11 +114,7 @@ public class USSS1 {
         System.exit(0);
     }
 
-    public boolean getState() {
-        return isOn;
-    }
-
-    private class TriggerThread extends Thread {
+    private static class TriggerThread extends Thread {
         private GpioPinDigitalOutput trigPin = null;
         private GpioPinDigitalInput echoPin = null;
         private Thread caller = null;

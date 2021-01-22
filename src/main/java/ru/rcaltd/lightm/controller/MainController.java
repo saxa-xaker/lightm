@@ -29,7 +29,7 @@ public class MainController {
     }
 
     @GetMapping("/mainCycleStart")
-    public String mainCycleStart() throws InterruptedException {
+    public String mainCycleStart() {
         final Thread thread1 = new Thread(() -> {
             try {
                 USSS1.monitorStart();
@@ -47,7 +47,6 @@ public class MainController {
 
         thread1.start();
         thread2.start();
-//        USSS3.monitorStart();
         //       mainCycle.mainCycleStart();
         System.out.println("System started");
         return "mainpage";

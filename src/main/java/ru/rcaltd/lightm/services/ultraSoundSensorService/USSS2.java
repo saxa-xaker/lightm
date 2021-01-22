@@ -18,14 +18,11 @@ public class USSS2 {
     private final static long MAX_WAIT = 500L;
     private final static boolean DEBUG = false;
     final RS2 rs2;
-    private boolean isOn;
 
     public USSS2(RS2 rs2) {
         this.rs2 = rs2;
     }
 
-
-    //    @Async
     public void monitorStart() throws InterruptedException {
         System.out.println("GPIO Control - Range Sensor HC-SR04.");
         System.out.println("Will stop is distance is smaller than " + MIN_DIST + " cm");
@@ -104,11 +101,11 @@ public class USSS2 {
                             if (rs2.getState())
                                 rs2.relayOff();
                         } catch (Exception ex) {
+                            ex.printStackTrace();
                         }
                     }
                 } else {
                     System.out.println("Hiccup!");
-                    //  try { Thread.sleep(2_000L); } catch (Exception ex) {}
                 }
             }
         }
@@ -118,11 +115,7 @@ public class USSS2 {
         System.exit(0);
     }
 
-    public boolean getState() {
-        return isOn;
-    }
-
-    private class TriggerThread extends Thread {
+    private static class TriggerThread extends Thread {
         private GpioPinDigitalOutput trigPin = null;
         private GpioPinDigitalInput echoPin = null;
         private Thread caller = null;
