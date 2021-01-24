@@ -6,27 +6,28 @@ import org.springframework.stereotype.Service;
 @Service
 public class RS2 {
 
-    final static GpioController gpio = GpioFactory.getInstance();
+    private final static GpioController gpio = GpioFactory.getInstance();
 
-    private static final GpioPinDigitalOutput relayPin = gpio
+    private final static GpioPinDigitalOutput relayPin2 = gpio
             .provisionDigitalOutputPin(RaspiPin.GPIO_27, PinState.LOW);
+    private final boolean DEBUG = true;
 
     public void relayOn() throws InterruptedException {
 
-        relayPin.high(); // Make relay pin HIGH
-        System.out.println("relay -2- On");
+        relayPin2.high(); // Make relay pin HIGH
+        if (DEBUG) System.out.println("relay -2- On");
         Thread.sleep(1000);
     }
 
     public void relayOff() throws InterruptedException {
 
-        relayPin.low(); // Make relay pin LOW
-        System.out.println("relay -2- Off");
-        Thread.sleep(1000);
+        relayPin2.low(); // Make relay pin LOW
+        if (DEBUG) System.out.println("relay -2- Off");
+        Thread.sleep(100);
     }
 
     public boolean getState() {
-        return relayPin.getState().isHigh();
+        return relayPin2.getState().isHigh();
     }
 
 }

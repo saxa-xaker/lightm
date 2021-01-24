@@ -8,24 +8,27 @@ public class RS1 {
 
     final static GpioController gpio = GpioFactory.getInstance();
 
-    private static final GpioPinDigitalOutput relayPin = gpio
+    private static final GpioPinDigitalOutput relayPin1 = gpio
             .provisionDigitalOutputPin(RaspiPin.GPIO_25, PinState.LOW);
+    private final boolean DEBUG = true;
 
     public void relayOn() throws InterruptedException {
-
-        relayPin.high(); // Make relay pin HIGH
-        System.out.println("relay -1- On");
+        // Make relay pin HIGH
+        relayPin1.high();
+        if (DEBUG) System.out.println("relay -1- On");
         Thread.sleep(1000);
     }
 
     public void relayOff() throws InterruptedException {
-
-        relayPin.low(); // Make relay pin LOW
-        System.out.println("relay -1- Off");
-        Thread.sleep(1000);
+        // Make relay pin LOW
+        relayPin1.low();
+        if (DEBUG) System.out.println("relay -1- Off");
+        Thread.sleep(100);
     }
+
+
     public boolean getState() {
-        return relayPin.getState().isHigh();
+        return relayPin1.getState().isHigh();
     }
 
 }

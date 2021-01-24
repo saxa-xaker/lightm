@@ -19,10 +19,11 @@
 	</parent>
 
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.version>11</java.version>
-	</properties>
+        <pi.pi4j.Directory>lib/</pi.pi4j.Directory>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>11</java.version>
+    </properties>
 	<repositories>
 		<repository>
 			<id>oss-snapshots-repo</id>
@@ -38,40 +39,55 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-thymeleaf</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.pi4j</groupId>
-			<artifactId>pi4j-core</artifactId>
-			<version>1.4-SNAPSHOT</version>
-		</dependency>
-		<!--		<dependency>-->
-		<!--			<groupId>org.projectlombok</groupId>-->
-		<!--			<artifactId>lombok</artifactId>-->
-		<!--			<version>1.18.12</version>-->
-		<!--		</dependency>-->
-	</dependencies>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.pi4j</groupId>
+            <artifactId>pi4j-core</artifactId>
+            <version>1.4-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.pi4j</groupId>
+            <artifactId>pi4j-native</artifactId>
+            <version>1.4-SNAPSHOT</version>
+            <classifier>raspberrypi-dynamic</classifier>
+            <type>so</type>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>2.3.4.RELEASE</version>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.1</version>
-				<configuration>
-					<release>${java.version}</release>
-					<source>11</source>
-					<target>11</target>
-				</configuration>
-			</plugin>
-		</plugins>
+                <version>2.3.4.RELEASE</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <release>${java.version}</release>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <!-- Add the pi4j in runtime. -->
+                            <Class-Path>${pi.pi4j.Directory}/pi4j-core-1.4-SNAPSHOT.jar</Class-Path>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
 	</build>
 </project>

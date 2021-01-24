@@ -11,12 +11,13 @@ import java.text.Format;
 public class USSS2 {
 
     private final static Format DF22 = new DecimalFormat("#0.00");
-    private final static double SOUND_SPEED = 34_300;          // in cm/s, 343 m/s
-    private final static double DIST_FACT = SOUND_SPEED / 2; // round trip
-    private final static int MIN_DIST = 60;
+    private final static double SOUND_SPEED = 34_300;
+    private final static double DIST_FACT = SOUND_SPEED / 2;
+    private final static int MIN_DIST = 10;
+    private final static int MAX_DIST = 60;
     private final static long BETWEEN_LOOPS = 500L;
     private final static long MAX_WAIT = 500L;
-    private final static boolean DEBUG = false;
+    private final static boolean DEBUG = true;
     final RS2 rs2;
 
     public USSS2(RS2 rs2) {
@@ -24,7 +25,6 @@ public class USSS2 {
     }
 
     public void monitorStart() throws InterruptedException {
-        System.out.println("GPIO Control - Range Sensor HC-SR04.");
         System.out.println("Will stop is distance is smaller than " + MIN_DIST + " cm");
 
         // create gpio controller
@@ -38,22 +38,22 @@ public class USSS2 {
                 addShutdownHook(new Thread(() ->
 
                 {
-                    System.out.println("Oops!");
+                    System.out.println("Sensor 2 - Oops!");
                     trigPin.low();
                     gpio.shutdown();
-                    System.out.println("Exiting nicely.");
+                    System.out.println("Sensor 2 - Exiting nicely.");
                 }, "Shutdown Hook"));
 
-        System.out.println("Waiting for the sensor to be ready (2s)...");
+        System.out.println("Sensor 2 - Waiting for the sensor to be ready (2s)...");
         Thread.sleep(2_000L);
         Thread mainThread = Thread.currentThread();
 
         boolean go = true;
-        System.out.println("Looping until the distance is less than " + MIN_DIST + " cm");
+        System.out.println("Sensor 2 - Looping until the distance is less than " + MIN_DIST + " cm");
         while (go) {
             boolean ok = true;
             double start = 0d, end = 0d;
-            if (DEBUG) System.out.println("Triggering module.");
+            if (DEBUG) System.out.println("Sensor 2 - Triggering module.");
             TriggerThread trigger = new TriggerThread(mainThread, trigPin, echoPin);
             trigger.start();
             try {
@@ -63,11 +63,11 @@ public class USSS2 {
                     long after = System.currentTimeMillis();
                     long diff = after - before;
                     if (DEBUG) {
-                        System.out.println("MainThread done waiting (" + diff + " ms), SECOND SENSOR");
+                        System.out.println("Sensor 2 - MainThread done waiting (" + diff + " ms)");
                     }
                     if (diff >= MAX_WAIT) {
                         ok = false;
-                        if (true || DEBUG) System.out.println("...Reseting.");
+                        if (true || DEBUG) System.out.println("Sensor 2 - ...Resetting...");
                         if (trigger.isAlive()) {
                             trigger.interrupt();
                         }
@@ -82,34 +82,36 @@ public class USSS2 {
                 start = trigger.getStart();
                 end = trigger.getEnd();
                 if (DEBUG) {
-                    System.out.println("Measuring...");
+                    System.out.println("Sensor 2 - Measuring...");
                 }
                 if (end > 0 && start > 0) {
                     double pulseDuration = (end - start) / 1E9; // in seconds
                     double distance = pulseDuration * DIST_FACT;
 
-                    if (distance > 10 && distance < MIN_DIST) {
-                        if (!rs2.getState())
+                    if (distance > MIN_DIST && distance < MAX_DIST) {
+                        if (!rs2.getState()) {
                             rs2.relayOn();
+                        }
                     } else {
                         if (distance < 0) {
                             go = false;
-                            System.out.println("Dist:" + distance + ", start:" + start + ", end:" + end);
+                            System.out.println("Sensor 2 - Dist:" + distance + ", start:" + start + ", end:" + end);
                         }
                         try {
                             Thread.sleep(BETWEEN_LOOPS);
-                            if (rs2.getState())
+                            if (rs2.getState()) {
                                 rs2.relayOff();
+                            }
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
                     }
                 } else {
-                    System.out.println("Hiccup!");
+                    System.out.println("Sensor 2 - Hiccup!");
                 }
             }
         }
-        System.out.println("Done.");
+        System.out.println("Sensor 2 - Done.");
         trigPin.low(); // Off
         gpio.shutdown();
         System.exit(0);
