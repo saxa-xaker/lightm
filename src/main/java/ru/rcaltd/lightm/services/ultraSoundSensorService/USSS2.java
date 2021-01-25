@@ -1,7 +1,9 @@
 package ru.rcaltd.lightm.services.ultraSoundSensorService;
 
 import com.pi4j.io.gpio.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import ru.rcaltd.lightm.entities.SensorMonitor;
 import ru.rcaltd.lightm.services.relayService.RS2;
 
 import java.text.DecimalFormat;
@@ -13,18 +15,22 @@ public class USSS2 {
     private final static Format DF22 = new DecimalFormat("#0.00");
     private final static double SOUND_SPEED = 34_300;
     private final static double DIST_FACT = SOUND_SPEED / 2;
-    private final static int MIN_DIST = 10;
-    private final static int MAX_DIST = 60;
+    @Value("${MIN_DIST}")
+    private int MIN_DIST;
+    @Value("${MAX_DIST}")
+    private int MAX_DIST;
     private final static long BETWEEN_LOOPS = 500L;
     private final static long MAX_WAIT = 500L;
-    private final static boolean DEBUG = true;
+    @Value("${DEBUG}")
+    private boolean DEBUG;
     final RS2 rs2;
+    private long counter = 0;
 
     public USSS2(RS2 rs2) {
         this.rs2 = rs2;
     }
 
-    public void monitorStart() throws InterruptedException {
+    public void monitorStart(SensorMonitor sensorMonitor) throws InterruptedException {
         System.out.println("Will stop is distance is smaller than " + MIN_DIST + " cm");
 
         // create gpio controller
@@ -79,34 +85,48 @@ public class USSS2 {
             }
 
             if (ok) {
+                counter++;
                 start = trigger.getStart();
                 end = trigger.getEnd();
                 if (DEBUG) {
-                    System.out.println("Sensor 2 - Measuring...");
+                    System.out.println("Sensor 2 - Measuring..." + counter);
                 }
                 if (end > 0 && start > 0) {
                     double pulseDuration = (end - start) / 1E9; // in seconds
                     double distance = pulseDuration * DIST_FACT;
 
-                    if (distance > MIN_DIST && distance < MAX_DIST) {
-                        if (!rs2.getState()) {
-                            rs2.relayOn();
+                    if (distance > MIN_DIST && distance < MAX_DIST && counter > 5) {
+                        counter = 0;
+                        if (!sensorMonitor.isBlocked()
+                                && sensorMonitor.isActiveSensor2()) {
+                            sensorMonitor.setBlocked(true);
+                            sensorMonitor.setWhoBlocked(2);
+                            sensorMonitor.setSensorOn2(true);
                         }
                     } else {
                         if (distance < 0) {
+                            counter = 0;
                             go = false;
                             System.out.println("Sensor 2 - Dist:" + distance + ", start:" + start + ", end:" + end);
                         }
-                        try {
-                            Thread.sleep(BETWEEN_LOOPS);
-                            if (rs2.getState()) {
-                                rs2.relayOff();
+                        if (counter > 5) {
+                            counter = 0;
+                            if (!sensorMonitor.isBlocked()) {
+                                sensorMonitor.setBlocked(true);
+                                sensorMonitor.setWhoBlocked(2);
+                                sensorMonitor.setSensorOn2(false);
                             }
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
+                            try {
+
+                                Thread.sleep(BETWEEN_LOOPS);
+
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
                         }
                     }
                 } else {
+                    counter = 0;
                     System.out.println("Sensor 2 - Hiccup!");
                 }
             }

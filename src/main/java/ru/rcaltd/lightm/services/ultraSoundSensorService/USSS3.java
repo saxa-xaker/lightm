@@ -1,7 +1,9 @@
 package ru.rcaltd.lightm.services.ultraSoundSensorService;
 
 import com.pi4j.io.gpio.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import ru.rcaltd.lightm.entities.SensorMonitor;
 import ru.rcaltd.lightm.services.relayService.RS3;
 
 import java.text.DecimalFormat;
@@ -13,18 +15,21 @@ public class USSS3 {
     private final static Format DF22 = new DecimalFormat("#0.00");
     private final static double SOUND_SPEED = 34_300;          // in cm/s, 343 m/s
     private final static double DIST_FACT = SOUND_SPEED / 2; // round trip
-    private final static int MIN_DIST = 10;
-    private final static int MAX_DIST = 60;
+    @Value("${MIN_DIST}")
+    private int MIN_DIST;
+    @Value("${MAX_DIST}")
+    private int MAX_DIST;
     private final static long BETWEEN_LOOPS = 500L;
     private final static long MAX_WAIT = 500L;
-    private final static boolean DEBUG = true;
+    @Value("${DEBUG}")
+    private boolean DEBUG;
     final RS3 rs3;
 
     public USSS3(RS3 rs3) {
         this.rs3 = rs3;
     }
 
-    public void monitorStart() throws InterruptedException {
+    public void monitorStart(SensorMonitor sensorMonitor) throws InterruptedException {
 
         // create gpio controller
         final GpioController gpio = GpioFactory.getInstance();
@@ -88,8 +93,10 @@ public class USSS3 {
                     double distance = pulseDuration * DIST_FACT;
 
                     if (distance > MIN_DIST && distance < MAX_DIST) {
-                        if (!rs3.getState()) {
-                            rs3.relayOn();
+                        if (!sensorMonitor.isBlocked() && sensorMonitor.isActiveSensor3()) {
+                            sensorMonitor.setBlocked(true);
+                            sensorMonitor.setWhoBlocked(3);
+                            sensorMonitor.setSensorOn3(true);
                         }
                     } else {
                         if (distance < 0) {
@@ -98,8 +105,10 @@ public class USSS3 {
                         }
                         try {
                             Thread.sleep(BETWEEN_LOOPS);
-                            if (rs3.getState()) {
-                                rs3.relayOff();
+                            if (!sensorMonitor.isBlocked()) {
+                                sensorMonitor.setBlocked(true);
+                                sensorMonitor.setWhoBlocked(3);
+                                sensorMonitor.setSensorOn3(false);
                             }
                         } catch (Exception ex) {
                             ex.printStackTrace();

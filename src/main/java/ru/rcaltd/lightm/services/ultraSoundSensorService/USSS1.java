@@ -1,8 +1,9 @@
 package ru.rcaltd.lightm.services.ultraSoundSensorService;
 
 import com.pi4j.io.gpio.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.rcaltd.lightm.services.relayService.RS1;
+import ru.rcaltd.lightm.entities.SensorMonitor;
 
 import java.text.DecimalFormat;
 import java.text.Format;
@@ -10,38 +11,32 @@ import java.text.Format;
 @Service
 public class USSS1 {
     private final static Format DF22 = new DecimalFormat("#0.00");
-    private final static double SOUND_SPEED = 34_300;          // in cm/s, 343 m/s
-    private final static double DIST_FACT = SOUND_SPEED / 2; // round trip
-    private final static int MIN_DIST = 10;
-    private final static int MAX_DIST = 60;
+    private final static double SOUND_SPEED = 34_300;
+    private final static double DIST_FACT = SOUND_SPEED / 2;
+    @Value("${MIN_DIST}")
+    private int MIN_DIST;
+    @Value("${MAX_DIST}")
+    private int MAX_DIST;
     private final static long BETWEEN_LOOPS = 400L;
     private final static long MAX_WAIT = 400L;
-    private final static boolean DEBUG = true;
-    final RS1 rs1;
+    @Value("${DEBUG}")
+    private boolean DEBUG;
+    private long counter = 0;
 
-    public USSS1(RS1 rs1) {
-        this.rs1 = rs1;
-    }
+    public void monitorStart(SensorMonitor sensorMonitor) throws InterruptedException {
 
-
-    public void monitorStart() throws InterruptedException {
-
-        // create gpio controller
         final GpioController gpio = GpioFactory.getInstance();
 
         final GpioPinDigitalOutput trigPin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_07, "Trig", PinState.LOW);
         final GpioPinDigitalInput echoPin = gpio.provisionDigitalInputPin(RaspiPin.GPIO_00, "Echo", PinPullResistance.PULL_DOWN);
 
-        Runtime.getRuntime().
-
-                addShutdownHook(new Thread(() ->
-
-                {
-                    System.out.println("Sensor 1 - Oops!");
-                    trigPin.low();
-                    gpio.shutdown();
-                    System.out.println("Sensor 1 - Exiting nicely.");
-                }, "Shutdown Hook"));
+        Runtime.getRuntime().addShutdownHook(new Thread(() ->
+        {
+            System.out.println("Sensor 1 - Oops!");
+            trigPin.low();
+            gpio.shutdown();
+            System.out.println("Sensor 1 - Exiting nicely.");
+        }, "Shutdown Hook"));
 
         System.out.println("Sensor 1 - Waiting for the sensor1 to be ready (2s)...");
         Thread.sleep(2_000L);
@@ -75,32 +70,42 @@ public class USSS1 {
                 ex.printStackTrace();
                 ok = false;
             }
-
             if (ok) {
+                counter++;
                 start = trigger.getStart();
                 end = trigger.getEnd();
                 if (DEBUG) System.out.println("Sensor 1 - Measuring...");
-
                 if (end > 0 && start > 0) {
                     double pulseDuration = (end - start) / 1E9; // in seconds
                     double distance = pulseDuration * DIST_FACT;
 
-                    if (distance > MIN_DIST && distance < MAX_DIST) {
-                        if (!rs1.getState()) {
-                            rs1.relayOn();
+                    if (distance > MIN_DIST && distance < MAX_DIST && counter > 10) {
+                        counter = 0;
+                        if (!sensorMonitor.isBlocked() && sensorMonitor.isActiveSensor1()) {
+                            sensorMonitor.setBlocked(true);
+                            sensorMonitor.setWhoBlocked(1);
+                            sensorMonitor.setSensorOn1(true);
                         }
                     } else {
                         if (distance < 0) {
+                            counter = 0;
                             go = false;
                             System.out.println("Sensor 1 - Dist:" + distance + ", start:" + start + ", end:" + end);
                         }
-                        try {
-                            Thread.sleep(BETWEEN_LOOPS);
-                            if (rs1.getState()) {
-                                rs1.relayOff();
+                        if (counter > 10) {
+                            counter = 0;
+                            if (!sensorMonitor.isBlocked()) {
+                                sensorMonitor.setBlocked(true);
+                                sensorMonitor.setWhoBlocked(1);
+                                sensorMonitor.setSensorOn1(false);
                             }
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
+                            try {
+
+                                Thread.sleep(BETWEEN_LOOPS);
+
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
                         }
                     }
                 } else {

@@ -1,6 +1,7 @@
 package ru.rcaltd.lightm.services.relayService;
 
 import com.pi4j.io.gpio.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -10,13 +11,14 @@ public class RS6 {
 
     final static GpioPinDigitalOutput relayPin6 = gpio
             .provisionDigitalOutputPin(RaspiPin.GPIO_21, PinState.LOW);
-    private final boolean DEBUG = true;
+    @Value("${DEBUG}")
+    private boolean DEBUG;
 
     public void relayOn() throws InterruptedException {
 
         relayPin6.high(); // Make relay pin HIGH
         if (DEBUG) System.out.println("relay -6- On");
-        Thread.sleep(1000);
+//        Thread.sleep(1000);
 
     }
 
@@ -24,7 +26,7 @@ public class RS6 {
 
         relayPin6.low(); // Make relay pin LOW
         if (DEBUG) System.out.println("relay -6- Off");
-        Thread.sleep(100);
+//        Thread.sleep(100);
 
     }
 

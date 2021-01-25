@@ -25,4 +25,11 @@ public class MainController {
         System.out.println("System started");
         return "mainpage";
     }
+
+    @GetMapping("/mainCycleStop")
+    public String mainCycleStop() {
+        monitorService.monitorStop();
+        System.out.println("System stopped");
+        return "mainpage";
+    }
 }

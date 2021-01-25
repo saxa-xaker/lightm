@@ -1,82 +1,137 @@
 package ru.rcaltd.lightm.entities;
 
-import java.util.Objects;
 
 public class SensorMonitor {
 
-    private boolean sensor1;
-    private boolean sensor2;
-    private boolean sensor3;
-    private boolean sensor4;
-    private boolean sensor5;
-    private boolean sensor6;
+    private boolean sensorOn1;
+    private boolean sensorOn2;
+    private boolean sensorOn3;
+    private boolean sensorOn4;
+    private boolean sensorOn5;
+    private boolean sensorOn6;
+    private boolean activeSensor1;
+    private boolean activeSensor2;
+    private boolean activeSensor3;
+    private boolean activeSensor4;
+    private boolean activeSensor5;
+    private boolean activeSensor6;
+    private boolean isBlocked;
+    private int whoBlocked;
+
+    public int getWhoBlocked() {
+        return whoBlocked;
+    }
+
+    public void setWhoBlocked(int whoBlocked) {
+        this.whoBlocked = whoBlocked;
+    }
+
+    synchronized public boolean isBlocked() {
+        return isBlocked;
+    }
+
+    synchronized public void setBlocked(boolean blocked) {
+        isBlocked = blocked;
+    }
+
+    public boolean isSensorOn1() {
+        return sensorOn1;
+    }
+
+    public void setSensorOn1(boolean sensorOn1) {
+        this.sensorOn1 = sensorOn1;
+    }
+
+    public boolean isSensorOn2() {
+        return sensorOn2;
+    }
+
+    public void setSensorOn2(boolean sensorOn2) {
+        this.sensorOn2 = sensorOn2;
+    }
+
+    public boolean isSensorOn3() {
+        return sensorOn3;
+    }
+
+    public void setSensorOn3(boolean sensorOn3) {
+        this.sensorOn3 = sensorOn3;
+    }
+
+    public boolean isSensorOn4() {
+        return sensorOn4;
+    }
+
+    public void setSensorOn4(boolean sensorOn4) {
+        this.sensorOn4 = sensorOn4;
+    }
+
+    public boolean isSensorOn5() {
+        return sensorOn5;
+    }
+
+    public void setSensorOn5(boolean sensorOn5) {
+        this.sensorOn5 = sensorOn5;
+    }
+
+    public boolean isSensorOn6() {
+        return sensorOn6;
+    }
+
+    public void setSensorOn6(boolean sensorOn6) {
+        this.sensorOn6 = sensorOn6;
+    }
+
+    public boolean isActiveSensor1() {
+        return activeSensor1;
+    }
+
+    public void setActiveSensor1(boolean activeSensor1) {
+        this.activeSensor1 = activeSensor1;
+    }
+
+    public boolean isActiveSensor2() {
+        return activeSensor2;
+    }
+
+    public void setActiveSensor2(boolean activeSensor2) {
+        this.activeSensor2 = activeSensor2;
+    }
+
+    public boolean isActiveSensor3() {
+        return activeSensor3;
+    }
+
+    public void setActiveSensor3(boolean activeSensor3) {
+        this.activeSensor3 = activeSensor3;
+    }
+
+    public boolean isActiveSensor4() {
+        return activeSensor4;
+    }
+
+    public void setActiveSensor4(boolean activeSensor4) {
+        this.activeSensor4 = activeSensor4;
+    }
+
+    public boolean isActiveSensor5() {
+        return activeSensor5;
+    }
+
+    public void setActiveSensor5(boolean activeSensor5) {
+        this.activeSensor5 = activeSensor5;
+    }
+
+    public boolean isActiveSensor6() {
+        return activeSensor6;
+    }
+
+    public void setActiveSensor6(boolean activeSensor6) {
+        this.activeSensor6 = activeSensor6;
+    }
 
     public SensorMonitor() {
     }
 
-    public boolean isSensor1() {
-        return sensor1;
-    }
 
-    public void setSensor1(boolean sensor1) {
-        this.sensor1 = sensor1;
-    }
-
-    public boolean isSensor2() {
-        return sensor2;
-    }
-
-    public void setSensor2(boolean sensor2) {
-        this.sensor2 = sensor2;
-    }
-
-    public boolean isSensor3() {
-        return sensor3;
-    }
-
-    public void setSensor3(boolean sensor3) {
-        this.sensor3 = sensor3;
-    }
-
-    public boolean isSensor4() {
-        return sensor4;
-    }
-
-    public void setSensor4(boolean sensor4) {
-        this.sensor4 = sensor4;
-    }
-
-    public boolean isSensor5() {
-        return sensor5;
-    }
-
-    public void setSensor5(boolean sensor5) {
-        this.sensor5 = sensor5;
-    }
-
-    public boolean isSensor6() {
-        return sensor6;
-    }
-
-    public void setSensor6(boolean sensor6) {
-        this.sensor6 = sensor6;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SensorMonitor)) return false;
-        SensorMonitor that = (SensorMonitor) o;
-        return isSensor1() == that.isSensor1() &&
-                isSensor2() == that.isSensor2() &&
-                isSensor3() == that.isSensor3() &&
-                isSensor4() == that.isSensor4() &&
-                isSensor5() == that.isSensor5() &&
-                isSensor6() == that.isSensor6();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(isSensor1(), isSensor2(), isSensor3(), isSensor4(), isSensor5(), isSensor6());
-    }
 }
