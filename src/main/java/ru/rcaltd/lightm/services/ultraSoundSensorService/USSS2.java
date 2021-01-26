@@ -97,8 +97,7 @@ public class USSS2 {
 
                     if (distance > MIN_DIST && distance < MAX_DIST && counter > 5) {
                         counter = 0;
-                        if (!sensorMonitor.isBlocked()
-                                && sensorMonitor.isActiveSensor2()) {
+                        if (!sensorMonitor.isBlocked() && sensorMonitor.isActiveSensor2()) {
                             sensorMonitor.setBlocked(true);
                             sensorMonitor.setWhoBlocked(2);
                             sensorMonitor.setSensorOn2(true);

@@ -14,10 +14,11 @@ public class RS1 {
 
     @Value("${DEBUG}")
     private boolean DEBUG;
-
+    private boolean isOn;
     public void relayOn() {
         // Make relay pin HIGH
         relayPin1.high();
+        isOn = true;
         if (DEBUG) System.out.println("relay -1- On");
         try {
             Thread.sleep(300);
@@ -29,13 +30,14 @@ public class RS1 {
     public void relayOff() {
         // Make relay pin LOW
         relayPin1.low();
+        isOn = false;
         if (DEBUG) System.out.println("relay -1- Off");
 //        Thread.sleep(100);
     }
 
 
     public boolean getState() {
-        return relayPin1.getState().isHigh();
+        return isOn;
     }
 
 }

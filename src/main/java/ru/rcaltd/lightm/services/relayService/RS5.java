@@ -9,29 +9,36 @@ public class RS5 {
 
     final static GpioController gpio = GpioFactory.getInstance();
 
-    final static GpioPinDigitalOutput relayPin5 = gpio
+    private static final GpioPinDigitalOutput relayPin5 = gpio
             .provisionDigitalOutputPin(RaspiPin.GPIO_22, PinState.LOW);
+
     @Value("${DEBUG}")
     private boolean DEBUG;
+    private boolean isOn;
 
-    public void relayOn() throws InterruptedException {
-
-        relayPin5.high(); // Make relay pin HIGH
+    public void relayOn() {
+        // Make relay pin HIGH
+        relayPin5.high();
+        isOn = true;
         if (DEBUG) System.out.println("relay -5- On");
-//        Thread.sleep(1000);
-
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void relayOff() throws InterruptedException {
-
-        relayPin5.low(); // Make relay pin LOW
+    public void relayOff() {
+        // Make relay pin LOW
+        relayPin5.low();
+        isOn = false;
         if (DEBUG) System.out.println("relay -5- Off");
 //        Thread.sleep(100);
-
     }
 
+
     public boolean getState() {
-        return relayPin5.getState().isHigh();
+        return isOn;
     }
 
 }

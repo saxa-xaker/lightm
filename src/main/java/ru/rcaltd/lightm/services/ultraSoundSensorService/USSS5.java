@@ -13,8 +13,8 @@ import java.text.Format;
 public class USSS5 {
 
     private final static Format DF22 = new DecimalFormat("#0.00");
-    private final static double SOUND_SPEED = 34_300;          // in cm/s, 343 m/s
-    private final static double DIST_FACT = SOUND_SPEED / 2; // round trip
+    private final static double SOUND_SPEED = 34_300;
+    private final static double DIST_FACT = SOUND_SPEED / 2;
     @Value("${MIN_DIST}")
     private int MIN_DIST;
     @Value("${MAX_DIST}")
@@ -24,12 +24,14 @@ public class USSS5 {
     @Value("${DEBUG}")
     private boolean DEBUG;
     final RS5 rs5;
+    private long counter = 0;
 
     public USSS5(RS5 rs5) {
         this.rs5 = rs5;
     }
 
     public void monitorStart(SensorMonitor sensorMonitor) throws InterruptedException {
+        System.out.println("Will stop is distance is smaller than " + MIN_DIST + " cm");
 
         // create gpio controller
         final GpioController gpio = GpioFactory.getInstance();
@@ -71,7 +73,7 @@ public class USSS5 {
                     }
                     if (diff >= MAX_WAIT) {
                         ok = false;
-                        if (true || DEBUG) System.out.println("Sensor 5 - ...Reseting...");
+                        if (true || DEBUG) System.out.println("Sensor 5 - ...Resetting...");
                         if (trigger.isAlive()) {
                             trigger.interrupt();
                         }
@@ -83,16 +85,18 @@ public class USSS5 {
             }
 
             if (ok) {
+                counter++;
                 start = trigger.getStart();
                 end = trigger.getEnd();
                 if (DEBUG) {
-                    System.out.println("Sensor 5 - Measuring...");
+                    System.out.println("Sensor 5 - Measuring..." + counter);
                 }
                 if (end > 0 && start > 0) {
                     double pulseDuration = (end - start) / 1E9; // in seconds
                     double distance = pulseDuration * DIST_FACT;
 
-                    if (distance > MIN_DIST && distance < MAX_DIST) {
+                    if (distance > MIN_DIST && distance < MAX_DIST && counter > 5) {
+                        counter = 0;
                         if (!sensorMonitor.isBlocked() && sensorMonitor.isActiveSensor5()) {
                             sensorMonitor.setBlocked(true);
                             sensorMonitor.setWhoBlocked(5);
@@ -100,21 +104,28 @@ public class USSS5 {
                         }
                     } else {
                         if (distance < 0) {
+                            counter = 0;
                             go = false;
                             System.out.println("Sensor 5 - Dist:" + distance + ", start:" + start + ", end:" + end);
                         }
-                        try {
-                            Thread.sleep(BETWEEN_LOOPS);
+                        if (counter > 5) {
+                            counter = 0;
                             if (!sensorMonitor.isBlocked()) {
                                 sensorMonitor.setBlocked(true);
                                 sensorMonitor.setWhoBlocked(5);
                                 sensorMonitor.setSensorOn5(false);
                             }
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
+                            try {
+
+                                Thread.sleep(BETWEEN_LOOPS);
+
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
                         }
                     }
                 } else {
+                    counter = 0;
                     System.out.println("Sensor 5 - Hiccup!");
                 }
             }

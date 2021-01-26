@@ -17,8 +17,8 @@ public class USSS1 {
     private int MIN_DIST;
     @Value("${MAX_DIST}")
     private int MAX_DIST;
-    private final static long BETWEEN_LOOPS = 400L;
-    private final static long MAX_WAIT = 400L;
+    private final static long BETWEEN_LOOPS = 500L;
+    private final static long MAX_WAIT = 500L;
     @Value("${DEBUG}")
     private boolean DEBUG;
     private long counter = 0;

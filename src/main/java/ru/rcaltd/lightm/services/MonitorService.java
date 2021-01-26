@@ -2,15 +2,12 @@ package ru.rcaltd.lightm.services;
 
 import org.springframework.stereotype.Service;
 import ru.rcaltd.lightm.entities.SensorMonitor;
-import ru.rcaltd.lightm.services.relayService.RS1;
-import ru.rcaltd.lightm.services.relayService.RS2;
-import ru.rcaltd.lightm.services.relayService.RS3;
+import ru.rcaltd.lightm.services.relayService.*;
 import ru.rcaltd.lightm.services.ultraSoundSensorService.*;
 
 @Service
 public class MonitorService {
 
-    final RS1 rs1;
     final SensorMonitor sensorMonitor = new SensorMonitor();
     final USSS1 usss1;
     final USSS2 usss2;
@@ -18,11 +15,15 @@ public class MonitorService {
     final USSS4 usss4;
     final USSS5 usss5;
     final USSS6 usss6;
+    final RS1 rs1;
     final RS2 rs2;
     final RS3 rs3;
+    final RS4 rs4;
+    final RS5 rs5;
+    final RS6 rs6;
     private boolean isStopped;
 
-    public MonitorService(USSS1 usss1, USSS2 usss2, USSS3 usss3, USSS4 usss4, USSS5 usss5, USSS6 usss6, RS1 rs1, RS2 rs2, RS3 rs3) {
+    public MonitorService(USSS1 usss1, USSS2 usss2, USSS3 usss3, USSS4 usss4, USSS5 usss5, USSS6 usss6, RS1 rs1, RS2 rs2, RS3 rs3, RS4 rs4, RS5 rs5, RS6 rs6) {
         this.usss1 = usss1;
         this.usss2 = usss2;
         this.usss3 = usss3;
@@ -32,6 +33,9 @@ public class MonitorService {
         this.rs1 = rs1;
         this.rs2 = rs2;
         this.rs3 = rs3;
+        this.rs4 = rs4;
+        this.rs5 = rs5;
+        this.rs6 = rs6;
     }
 
     public void monitorsStart() {
@@ -52,41 +56,41 @@ public class MonitorService {
                 e.printStackTrace();
             }
         });
-//        final Thread thread3 = new Thread(() -> {
-//            try {
-//                usss3.monitorStart(sensorMonitor);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        });
-//        final Thread thread4 = new Thread(() -> {
-//            try {
-//                usss4.monitorStart();
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        });
-//        final Thread thread5 = new Thread(() -> {
-//            try {
-//                usss5.monitorStart();
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        });
-//        final Thread thread6 = new Thread(() -> {
-//            try {
-//                usss6.monitorStart();
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        });
+        final Thread thread3 = new Thread(() -> {
+            try {
+                usss3.monitorStart(sensorMonitor);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        final Thread thread4 = new Thread(() -> {
+            try {
+                usss4.monitorStart(sensorMonitor);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        final Thread thread5 = new Thread(() -> {
+            try {
+                usss5.monitorStart(sensorMonitor);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        final Thread thread6 = new Thread(() -> {
+            try {
+                usss6.monitorStart(sensorMonitor);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
 
         thread1.start();
         thread2.start();
-//        thread3.start();
-//        thread4.start();
-//        thread5.start();
-//        thread6.start();
+        thread3.start();
+        thread4.start();
+        thread5.start();
+        thread6.start();
 
         //IDLE MODE
         sensorMonitor.setActiveSensor1(true);
@@ -103,12 +107,12 @@ public class MonitorService {
                 case 1: {
                     if (sensorMonitor.isSensorOn1()) {
                         if (!rs1.getState()) rs1.relayOn();
-                        sensorMonitor.setActiveSensor1(false);
+                        sensorMonitor.setActiveSensor1(true);
                         sensorMonitor.setActiveSensor2(true);
                         sensorMonitor.setActiveSensor3(false);
                         sensorMonitor.setActiveSensor4(false);
                         sensorMonitor.setActiveSensor5(false);
-                        sensorMonitor.setActiveSensor6(true);
+                        sensorMonitor.setActiveSensor6(false);
                         sensorMonitor.setBlocked(false);
                     } else {
                         if (rs1.getState()) rs1.relayOff();
@@ -125,7 +129,7 @@ public class MonitorService {
                 case 2: {
                     if (sensorMonitor.isSensorOn2()) {
                         sensorMonitor.setActiveSensor1(true);
-                        sensorMonitor.setActiveSensor2(false);
+                        sensorMonitor.setActiveSensor2(true);
                         sensorMonitor.setActiveSensor3(true);
                         sensorMonitor.setActiveSensor4(false);
                         sensorMonitor.setActiveSensor5(false);
@@ -146,38 +150,96 @@ public class MonitorService {
                     break;
                 }
                 case 3: {
-//                    if (sensorMonitor.isSensorOn3()) {
-//                        try {
-//                            if (!rs3.getState()) {
-//                                rs3.relayOn();
-//                            }
-//                            sensorMonitor.setActiveSensor1(false);
-//                            sensorMonitor.setActiveSensor2(true);
-//                            sensorMonitor.setActiveSensor3(false);
-//                            sensorMonitor.setActiveSensor4(true);
-//                            sensorMonitor.setActiveSensor5(false);
-//                            sensorMonitor.setActiveSensor6(false);
-//                            sensorMonitor.setBlocked(false);
-//                        } catch (InterruptedException e) {
-//                            sensorMonitor.setBlocked(false);
-//                            e.printStackTrace();
-//                        }
-//                    } else {
-//                        try {
-//                            if (rs3.getState()) rs3.relayOff();
-//                            sensorMonitor.setBlocked(false);
-//                        } catch (InterruptedException e) {
-//                            sensorMonitor.setBlocked(false);
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                    break;
+                    if (sensorMonitor.isSensorOn3()) {
+                        sensorMonitor.setActiveSensor1(false);
+                        sensorMonitor.setActiveSensor2(true);
+                        sensorMonitor.setActiveSensor3(true);
+                        sensorMonitor.setActiveSensor4(true);
+                        sensorMonitor.setActiveSensor5(false);
+                        sensorMonitor.setActiveSensor6(false);
+                        if (!rs3.getState()) rs3.relayOn();
+                        sensorMonitor.setBlocked(false);
+                    } else {
+                        if (rs3.getState()) rs3.relayOff();
+                        sensorMonitor.setActiveSensor1(false);
+                        sensorMonitor.setActiveSensor2(true);
+                        sensorMonitor.setActiveSensor3(true);
+                        sensorMonitor.setActiveSensor4(true);
+                        sensorMonitor.setActiveSensor5(false);
+                        sensorMonitor.setActiveSensor6(false);
+                        sensorMonitor.setBlocked(false);
+
+                    }
+                    break;
                 }
                 case 4: {
+                    if (sensorMonitor.isSensorOn4()) {
+                        sensorMonitor.setActiveSensor1(false);
+                        sensorMonitor.setActiveSensor2(false);
+                        sensorMonitor.setActiveSensor3(true);
+                        sensorMonitor.setActiveSensor4(true);
+                        sensorMonitor.setActiveSensor5(true);
+                        sensorMonitor.setActiveSensor6(false);
+                        if (!rs4.getState()) rs4.relayOn();
+                        sensorMonitor.setBlocked(false);
+                    } else {
+                        if (rs4.getState()) rs4.relayOff();
+                        sensorMonitor.setActiveSensor1(false);
+                        sensorMonitor.setActiveSensor2(false);
+                        sensorMonitor.setActiveSensor3(true);
+                        sensorMonitor.setActiveSensor4(true);
+                        sensorMonitor.setActiveSensor5(true);
+                        sensorMonitor.setActiveSensor6(false);
+                        sensorMonitor.setBlocked(false);
+
+                    }
+                    break;
                 }
                 case 5: {
+                    if (sensorMonitor.isSensorOn5()) {
+                        sensorMonitor.setActiveSensor1(false);
+                        sensorMonitor.setActiveSensor2(false);
+                        sensorMonitor.setActiveSensor3(false);
+                        sensorMonitor.setActiveSensor4(true);
+                        sensorMonitor.setActiveSensor5(true);
+                        sensorMonitor.setActiveSensor6(true);
+                        if (!rs5.getState()) rs5.relayOn();
+                        sensorMonitor.setBlocked(false);
+                    } else {
+                        if (rs5.getState()) rs5.relayOff();
+                        sensorMonitor.setActiveSensor1(false);
+                        sensorMonitor.setActiveSensor2(false);
+                        sensorMonitor.setActiveSensor3(false);
+                        sensorMonitor.setActiveSensor4(true);
+                        sensorMonitor.setActiveSensor5(true);
+                        sensorMonitor.setActiveSensor6(true);
+                        sensorMonitor.setBlocked(false);
+
+                    }
+                    break;
                 }
                 case 6: {
+                    if (sensorMonitor.isSensorOn6()) {
+                        sensorMonitor.setActiveSensor1(false);
+                        sensorMonitor.setActiveSensor2(false);
+                        sensorMonitor.setActiveSensor3(false);
+                        sensorMonitor.setActiveSensor4(false);
+                        sensorMonitor.setActiveSensor5(true);
+                        sensorMonitor.setActiveSensor6(true);
+                        if (!rs6.getState()) rs6.relayOn();
+                        sensorMonitor.setBlocked(false);
+                    } else {
+                        if (rs6.getState()) rs6.relayOff();
+                        sensorMonitor.setActiveSensor1(true);
+                        sensorMonitor.setActiveSensor2(false);
+                        sensorMonitor.setActiveSensor3(false);
+                        sensorMonitor.setActiveSensor4(false);
+                        sensorMonitor.setActiveSensor5(true);
+                        sensorMonitor.setActiveSensor6(true);
+                        sensorMonitor.setBlocked(false);
+
+                    }
+                    break;
                 }
                 default: {
                     if (!sensorMonitor.isBlocked()) {
@@ -188,8 +250,8 @@ public class MonitorService {
                         sensorMonitor.setActiveSensor4(false);
                         sensorMonitor.setActiveSensor5(false);
                         sensorMonitor.setActiveSensor6(true);
-                        sensorMonitor.setBlocked(false);
                         sensorMonitor.setWhoBlocked(0);
+                        sensorMonitor.setBlocked(false);
                     }
                     System.out.println("IDLE");
 //                    try {
