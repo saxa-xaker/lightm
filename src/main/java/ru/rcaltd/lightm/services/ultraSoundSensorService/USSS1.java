@@ -4,6 +4,7 @@ import com.pi4j.io.gpio.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.rcaltd.lightm.entities.SensorMonitor;
+import ru.rcaltd.lightm.services.relayService.RS1;
 
 import java.text.DecimalFormat;
 import java.text.Format;
@@ -21,7 +22,11 @@ public class USSS1 {
     private final static long MAX_WAIT = 500L;
     @Value("${DEBUG}")
     private boolean DEBUG;
-    private long counter = 0;
+    final RS1 rs1;
+
+    public USSS1(RS1 rs1) {
+        this.rs1 = rs1;
+    }
 
     public void monitorStart(SensorMonitor sensorMonitor) throws InterruptedException {
 
@@ -71,7 +76,6 @@ public class USSS1 {
                 ok = false;
             }
             if (ok) {
-                counter++;
                 start = trigger.getStart();
                 end = trigger.getEnd();
                 if (DEBUG) System.out.println("Sensor 1 - Measuring...");
@@ -79,34 +83,41 @@ public class USSS1 {
                     double pulseDuration = (end - start) / 1E9; // in seconds
                     double distance = pulseDuration * DIST_FACT;
 
-                    if (distance > MIN_DIST && distance < MAX_DIST && counter > 10) {
-                        counter = 0;
-                        if (!sensorMonitor.isBlocked() && sensorMonitor.isActiveSensor1()) {
-                            sensorMonitor.setBlocked(true);
-                            sensorMonitor.setWhoBlocked(1);
-                            sensorMonitor.setSensorOn1(true);
-                        }
+                    if (distance > MIN_DIST && distance < MAX_DIST
+                            && sensorMonitor.isActiveSensor1()) {
+                        sensorMonitor.setActiveSensor1(true);
+                        sensorMonitor.setActiveSensor2(false);
+                        sensorMonitor.setActiveSensor3(false);
+                        sensorMonitor.setActiveSensor4(false);
+                        sensorMonitor.setActiveSensor5(false);
+                        sensorMonitor.setActiveSensor6(false);
+                        rs1.relayOn();
+                        System.out.println(distance);
                     } else {
                         if (distance < 0) {
-                            counter = 0;
                             go = false;
                             System.out.println("Sensor 1 - Dist:" + distance + ", start:" + start + ", end:" + end);
                         }
-                        if (counter > 10) {
-                            counter = 0;
-                            if (!sensorMonitor.isBlocked()) {
-                                sensorMonitor.setBlocked(true);
-                                sensorMonitor.setWhoBlocked(1);
-                                sensorMonitor.setSensorOn1(false);
-                            }
-                            try {
 
-                                Thread.sleep(BETWEEN_LOOPS);
+                        if (sensorMonitor.isActiveSensor1() && rs1.getState()) {
 
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
+                            sensorMonitor.setActiveSensor1(true);
+                            sensorMonitor.setActiveSensor2(true);
+                            sensorMonitor.setActiveSensor3(false);
+                            sensorMonitor.setActiveSensor4(false);
+                            sensorMonitor.setActiveSensor5(false);
+                            sensorMonitor.setActiveSensor6(true);
+                            rs1.relayOff();
+                            System.out.println(distance);
                         }
+                        try {
+
+                            Thread.sleep(BETWEEN_LOOPS);
+
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+
                     }
                 } else {
                     System.out.println("Sensor 1 - Hiccup!");

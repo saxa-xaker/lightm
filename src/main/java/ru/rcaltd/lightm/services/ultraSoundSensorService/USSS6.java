@@ -11,7 +11,6 @@ import java.text.Format;
 
 @Service
 public class USSS6 {
-
     private final static Format DF22 = new DecimalFormat("#0.00");
     private final static double SOUND_SPEED = 34_300;
     private final static double DIST_FACT = SOUND_SPEED / 2;
@@ -24,33 +23,27 @@ public class USSS6 {
     @Value("${DEBUG}")
     private boolean DEBUG;
     final RS6 rs6;
-    private long counter = 0;
 
     public USSS6(RS6 rs6) {
         this.rs6 = rs6;
     }
 
     public void monitorStart(SensorMonitor sensorMonitor) throws InterruptedException {
-        System.out.println("Will stop is distance is smaller than " + MIN_DIST + " cm");
 
-        // create gpio controller
         final GpioController gpio = GpioFactory.getInstance();
 
         final GpioPinDigitalOutput trigPin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_14, "Trig", PinState.LOW);
         final GpioPinDigitalInput echoPin = gpio.provisionDigitalInputPin(RaspiPin.GPIO_10, "Echo", PinPullResistance.PULL_DOWN);
 
-        Runtime.getRuntime().
+        Runtime.getRuntime().addShutdownHook(new Thread(() ->
+        {
+            System.out.println("Sensor 6 - Oops!");
+            trigPin.low();
+            gpio.shutdown();
+            System.out.println("Sensor 6 - Exiting nicely.");
+        }, "Shutdown Hook"));
 
-                addShutdownHook(new Thread(() ->
-
-                {
-                    System.out.println("Sensor 6 - Oops!");
-                    trigPin.low();
-                    gpio.shutdown();
-                    System.out.println("Sensor 6 - Exiting nicely.");
-                }, "Shutdown Hook"));
-
-        System.out.println("Sensor 6 - Waiting for the sensor to be ready (2s)...");
+        System.out.println("Sensor 6 - Waiting for the sensor1 to be ready (2s)...");
         Thread.sleep(2_000L);
         Thread mainThread = Thread.currentThread();
 
@@ -68,12 +61,11 @@ public class USSS6 {
                     mainThread.wait(MAX_WAIT);
                     long after = System.currentTimeMillis();
                     long diff = after - before;
-                    if (DEBUG) {
-                        System.out.println("Sensor 6 - MainThread done waiting (" + diff + " ms)");
-                    }
+                    if (DEBUG) System.out.println("Sensor 6 - MainThread done waiting (" + diff + " ms)");
+
                     if (diff >= MAX_WAIT) {
                         ok = false;
-                        if (true || DEBUG) System.out.println("Sensor 6 - ...Resetting...");
+                        if (true || DEBUG) System.out.println("Sensor 6 ...Resetting...");
                         if (trigger.isAlive()) {
                             trigger.interrupt();
                         }
@@ -83,49 +75,48 @@ public class USSS6 {
                 ex.printStackTrace();
                 ok = false;
             }
-
             if (ok) {
-                counter++;
                 start = trigger.getStart();
                 end = trigger.getEnd();
-                if (DEBUG) {
-                    System.out.println("Sensor 6 - Measuring..." + counter);
-                }
+                if (DEBUG) System.out.println("Sensor 6 - Measuring...");
                 if (end > 0 && start > 0) {
                     double pulseDuration = (end - start) / 1E9; // in seconds
                     double distance = pulseDuration * DIST_FACT;
 
-                    if (distance > MIN_DIST && distance < MAX_DIST && counter > 5) {
-                        counter = 0;
-                        if (!sensorMonitor.isBlocked() && sensorMonitor.isActiveSensor6()) {
-                            sensorMonitor.setBlocked(true);
-                            sensorMonitor.setWhoBlocked(6);
-                            sensorMonitor.setSensorOn6(true);
-                        }
+                    if (distance > MIN_DIST && distance < MAX_DIST && sensorMonitor.isActiveSensor6()) {
+                        sensorMonitor.setActiveSensor1(false);
+                        sensorMonitor.setActiveSensor2(false);
+                        sensorMonitor.setActiveSensor3(false);
+                        sensorMonitor.setActiveSensor4(false);
+                        sensorMonitor.setActiveSensor5(false);
+                        sensorMonitor.setActiveSensor6(true);
+                        rs6.relayOn();
+                        System.out.println(distance);
                     } else {
                         if (distance < 0) {
-                            counter = 0;
                             go = false;
                             System.out.println("Sensor 6 - Dist:" + distance + ", start:" + start + ", end:" + end);
                         }
-                        if (counter > 5) {
-                            counter = 0;
-                            if (!sensorMonitor.isBlocked()) {
-                                sensorMonitor.setBlocked(true);
-                                sensorMonitor.setWhoBlocked(6);
-                                sensorMonitor.setSensorOn6(false);
-                            }
-                            try {
-
-                                Thread.sleep(BETWEEN_LOOPS);
-
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
+                        if (sensorMonitor.isActiveSensor6() && rs6.getState()) {
+                            sensorMonitor.setActiveSensor1(true);
+                            sensorMonitor.setActiveSensor2(false);
+                            sensorMonitor.setActiveSensor3(true);
+                            sensorMonitor.setActiveSensor4(false);
+                            sensorMonitor.setActiveSensor5(true);
+                            sensorMonitor.setActiveSensor6(true);
+                            rs6.relayOff();
+                            System.out.println(distance);
                         }
+                        try {
+
+                            Thread.sleep(BETWEEN_LOOPS);
+
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+
                     }
                 } else {
-                    counter = 0;
                     System.out.println("Sensor 6 - Hiccup!");
                 }
             }
