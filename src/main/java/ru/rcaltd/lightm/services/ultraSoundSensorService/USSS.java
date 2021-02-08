@@ -39,11 +39,11 @@ public class USSS {
         Thread mainThread = Thread.currentThread();
 
         boolean go = true;
-//        System.out.println("Sensor " + _echoPin.getName()
-//                + " - Looping until the distance is less than " + 10 + " cm");
+        if (DEBUG) System.out.println("Sensor " + _echoPin.getName()
+                + " - Looping until the distance is less than " + 10 + " cm");
         while (go) {
             reentrantLock.lock();
-            System.out.println("Lock " + Thread.currentThread().getName());
+            if (DEBUG) System.out.println("Lock " + Thread.currentThread().getName());
             boolean ok = true;
             double start, end;
             if (DEBUG) System.out.println("Sensor " + _echoPin.getName()
@@ -59,7 +59,7 @@ public class USSS {
 
                     if (diff >= MAX_WAIT) {
                         ok = false;
-                        System.out.println("Sensor " + _echoPin.getName() + " ...Resetting...");
+                        if (DEBUG) System.out.println("Sensor " + _echoPin.getName() + " ...Resetting...");
                         if (trigger.isAlive()) {
                             trigger.interrupt();
                             trigger.join();
@@ -67,42 +67,41 @@ public class USSS {
                     }
                 }
             } catch (Exception ex) {
-                ex.getCause();
+                ex.printStackTrace();
                 ok = false;
             }
             if (ok) {
                 start = trigger.getStart();
                 end = trigger.getEnd();
-//                if (DEBUG) System.out.println("Sensor " + _echoPin.getName() + " - Measuring...");
+                if (DEBUG) System.out.println("Sensor " + _echoPin.getName() + " - Measuring...");
                 if (end > 0 && start > 0) {
                     double pulseDuration = (end - start) / 1E9; // in seconds
                     double distance = pulseDuration * DIST_FACT;
 
                     if (distance > 10 && distance < 40) {
                         rs.relayOn();
-                        System.out.println(distance);
+                        if (DEBUG) System.out.println(distance);
                     } else {
                         if (distance < 0) {
                             go = false;
-                            System.out.println("Sensor " + _echoPin.getName()
+                            if (DEBUG) System.out.println("Sensor " + _echoPin.getName()
                                     + " - Dist:" + distance + ", start:" + start + ", end:" + end);
                         }
                         if (rs.getState()) {
                             rs.relayOff();
-                            System.out.println(distance);
+                            if (DEBUG) System.out.println(distance);
                         }
                     }
+                } else {
+                    if (DEBUG) System.out.println("Sensor " + _echoPin.getName() + " - Hiccup!");
                 }
-//                else {
-//                    System.out.println("Sensor " + _echoPin.getName() + " - Hiccup!");
-//                }
             }
             Thread.sleep(10);
-            System.out.println("Unlock " + Thread.currentThread().getName());
+            if (DEBUG) System.out.println("Unlock " + Thread.currentThread().getName());
             reentrantLock.unlock();
             Thread.sleep(400);
         }
-        trigPin.low(); // Off
+        trigPin.low();
         gpio.shutdown();
         System.exit(0);
     }
