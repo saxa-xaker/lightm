@@ -5,7 +5,7 @@
 
     <groupId>ru.rcaltd</groupId>
     <artifactId>lightm</artifactId>
-    <version>1.0-RELEASE</version>
+    <version>2.0-RELEASE</version>
     <packaging>jar</packaging>
 
     <name>lightm</name>

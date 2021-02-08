@@ -7,12 +7,20 @@ import java.io.IOException;
 @Service
 public class PowerService {
 
-    public void lightmRestart() throws IOException {
-        Runtime.getRuntime().exec("systemctl restart lightm");
+    public void lightmRestart() {
+        try {
+            Runtime.getRuntime().exec("systemctl restart lightm");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void lightmShutdown() throws IOException {
-        Runtime.getRuntime().exec("systemctl stop lightm");
+    public void lightmShutdown() {
+        try {
+            Runtime.getRuntime().exec("systemctl stop lightm");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void systemRestart() throws IOException {
@@ -23,11 +31,7 @@ public class PowerService {
         Runtime.getRuntime().exec("shutdown -P now");
     }
 
-//    public void hardReset() throws IOException {
-//        Runtime.getRuntime().exec("sh /opt/lightm/scripts/init/hardReset.sh");
-//    }
-//
-//    public void apAutoConnect() throws IOException {
-//        Runtime.getRuntime().exec("sh /opt/lightm/scripts/init/apAutoConnect.sh");
-//    }
+    public void apAutoConnect() throws IOException {
+        Runtime.getRuntime().exec("sh /opt/lightm/scripts/init/apAutoConnect.sh");
+    }
 }
