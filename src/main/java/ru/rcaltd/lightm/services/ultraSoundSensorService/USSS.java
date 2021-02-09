@@ -1,30 +1,20 @@
 package ru.rcaltd.lightm.services.ultraSoundSensorService;
 
 import com.pi4j.io.gpio.*;
-import ru.rcaltd.lightm.services.relayService.RS;
 
-import java.text.DecimalFormat;
-import java.text.Format;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class USSS {
-    private final static Format DF22 = new DecimalFormat("#0.00");
-    private final static double SOUND_SPEED = 34_300;
-    private final static double DIST_FACT = SOUND_SPEED / 2;
-    private final static long MAX_WAIT = 50L;
-    final RS rs;
+    private final static long MAX_WAIT = 20L;
     private final boolean DEBUG = false;
 
-    public USSS(RS rs) {
-        this.rs = rs;
-    }
-
-    public void monitorStart(Pin _trigPin, Pin _echoPin, ReentrantLock reentrantLock) throws InterruptedException {
+    public void monitorStart(Pin _relayPin, Pin _trigPin, Pin _echoPin, ReentrantLock _locker) throws InterruptedException {
 
         final GpioController gpio = GpioFactory.getInstance();
 
         final GpioPinDigitalOutput trigPin = gpio.provisionDigitalOutputPin(_trigPin, "Trig", PinState.LOW);
         final GpioPinDigitalInput echoPin = gpio.provisionDigitalInputPin(_echoPin, "Echo", PinPullResistance.PULL_DOWN);
+        final GpioPinDigitalOutput relayPin = gpio.provisionDigitalOutputPin(_relayPin, "Relay", PinState.LOW);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() ->
         {
@@ -42,68 +32,69 @@ public class USSS {
         if (DEBUG) System.out.println("Sensor " + _echoPin.getName()
                 + " - Looping until the distance is less than " + 10 + " cm");
         while (go) {
-            reentrantLock.lock();
-            if (DEBUG) System.out.println("Lock " + Thread.currentThread().getName());
-            boolean ok = true;
-            double start, end;
-            if (DEBUG) System.out.println("Sensor " + _echoPin.getName()
-                    + " - Triggering module.");
-            TriggerThread trigger = new TriggerThread(mainThread, trigPin, echoPin);
-            trigger.start();
+            _locker.lock();
             try {
-                synchronized (mainThread) {
-                    long before = System.currentTimeMillis();
-                    mainThread.wait(MAX_WAIT);
-                    long after = System.currentTimeMillis();
-                    long diff = after - before;
+                if (DEBUG) System.out.println("Lock " + Thread.currentThread().getName());
+                boolean ok = true;
+                double start, end;
+                if (DEBUG) System.out.println("Sensor " + _echoPin.getName()
+                        + " - Triggering module.");
+                TriggerThread trigger = new TriggerThread(mainThread, trigPin, echoPin);
+                trigger.start();
+                try {
+                    synchronized (mainThread) {
+                        long before = System.currentTimeMillis();
+                        mainThread.wait(20L);
+                        long after = System.currentTimeMillis();
 
-                    if (diff >= MAX_WAIT) {
-                        ok = false;
-                        if (DEBUG) System.out.println("Sensor " + _echoPin.getName() + " ...Resetting...");
-                        if (trigger.isAlive()) {
-                            trigger.interrupt();
-                            trigger.join();
+                        if ((after - before) >= 20L) {
+                            ok = false;
+                            if (DEBUG) System.out.println("Sensor " + _echoPin.getName() + " ...Resetting...");
+                            if (trigger.isAlive()) {
+                                trigger.interrupt();
+                            }
                         }
                     }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    ok = false;
                 }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                ok = false;
-            }
-            if (ok) {
-                start = trigger.getStart();
-                end = trigger.getEnd();
-                if (DEBUG) System.out.println("Sensor " + _echoPin.getName() + " - Measuring...");
-                if (end > 0 && start > 0) {
-                    double pulseDuration = (end - start) / 1E9; // in seconds
-                    double distance = pulseDuration * DIST_FACT;
+                if (ok) {
+                    start = trigger.getStart();
+                    end = trigger.getEnd();
+                    if (DEBUG) System.out.println("Sensor " + _echoPin.getName() + " - Measuring...");
+                    if (end > 0 && start > 0) {
+                        double distance = ((end - start) / 1E9) * (34_300d / 2d);
 
-                    if (distance > 10 && distance < 40) {
-                        rs.relayOn();
-                        if (DEBUG) System.out.println(distance);
+                        if (distance > 10 && distance < 40) {
+                            relayPin.high();
+                            if (DEBUG) System.out.println(distance + ", relay " + relayPin.getName());
+                        } else {
+                            if (distance < 0) {
+                                go = false;
+                                if (DEBUG) System.out.println("Sensor " + _echoPin.getName()
+                                        + " - Dist:" + distance + ", start:" + start + ", end:" + end);
+                            }
+                            if (relayPin.getState().isHigh()) {
+                                relayPin.low();
+                                if (DEBUG) System.out.println(distance);
+                            }
+                        }
                     } else {
-                        if (distance < 0) {
-                            go = false;
-                            if (DEBUG) System.out.println("Sensor " + _echoPin.getName()
-                                    + " - Dist:" + distance + ", start:" + start + ", end:" + end);
-                        }
-                        if (rs.getState()) {
-                            rs.relayOff();
-                            if (DEBUG) System.out.println(distance);
-                        }
+                        if (DEBUG) System.out.println("Sensor " + _echoPin.getName() + " - Hiccup!");
                     }
-                } else {
-                    if (DEBUG) System.out.println("Sensor " + _echoPin.getName() + " - Hiccup!");
                 }
+                Thread.sleep(40);
+                if (DEBUG) System.out.println("Unlock " + Thread.currentThread().getName());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                _locker.unlock();
+                Thread.sleep(280);
             }
-            Thread.sleep(10);
-            if (DEBUG) System.out.println("Unlock " + Thread.currentThread().getName());
-            reentrantLock.unlock();
-            Thread.sleep(400);
         }
         trigPin.low();
         gpio.shutdown();
-        System.exit(0);
     }
 
     private static class TriggerThread extends Thread {
@@ -128,14 +119,14 @@ public class USSS {
             }
             trigPin.low();
 
-            // Wait for the signal to return 5 milliseconds maximum
+            // Wait for the signal to return 7 milliseconds maximum
             long echoWaitStart = System.currentTimeMillis();
-            while ((System.currentTimeMillis() - echoWaitStart) < 5 && echoPin.isLow()) {
+            while ((System.currentTimeMillis() - echoWaitStart) < 7 && echoPin.isLow()) {
                 start = System.nanoTime();
             }
-            // Wait for the signal to return 5 milliseconds maximum
+            // Wait for the signal length 7 milliseconds maximum
             long echoWaitFinish = System.currentTimeMillis();
-            while ((System.currentTimeMillis() - echoWaitFinish) < 5 && echoPin.isHigh()) {
+            while ((System.currentTimeMillis() - echoWaitFinish) < 7 && echoPin.isHigh()) {
                 end = System.nanoTime();
             }
             synchronized (caller) {

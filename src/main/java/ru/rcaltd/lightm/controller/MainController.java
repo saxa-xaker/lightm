@@ -22,7 +22,7 @@ public class MainController {
     @GetMapping("/mainCycleStart")
     public String mainCycleStart() {
         monitorService.monitorsStart();
-        System.out.println("System started");
+        System.out.println("SYSTEM STARTED");
         return "mainpage";
     }
 
