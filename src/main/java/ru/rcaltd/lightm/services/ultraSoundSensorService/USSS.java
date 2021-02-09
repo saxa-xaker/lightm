@@ -5,12 +5,10 @@ import com.pi4j.io.gpio.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class USSS {
-    private final static long MAX_WAIT = 20L;
     private final boolean DEBUG = false;
+    final GpioController gpio = GpioFactory.getInstance();
 
     public void monitorStart(Pin _relayPin, Pin _trigPin, Pin _echoPin, ReentrantLock _locker) throws InterruptedException {
-
-        final GpioController gpio = GpioFactory.getInstance();
 
         final GpioPinDigitalOutput trigPin = gpio.provisionDigitalOutputPin(_trigPin, "Trig", PinState.LOW);
         final GpioPinDigitalInput echoPin = gpio.provisionDigitalInputPin(_echoPin, "Echo", PinPullResistance.PULL_DOWN);
@@ -24,7 +22,7 @@ public class USSS {
         }, "Shutdown Hook"));
 
         System.out.println("Sensor " + _echoPin.getName()
-                + " - Waiting for the sensor1 to be ready (2s)...");
+                + " - Waiting for the sensor to be ready (2s)...");
         Thread.sleep(2_000L);
         Thread mainThread = Thread.currentThread();
 
