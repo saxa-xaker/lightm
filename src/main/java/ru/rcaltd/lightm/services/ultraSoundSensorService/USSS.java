@@ -64,7 +64,7 @@ public class USSS {
                     if (end > 0 && start > 0) {
                         double distance = ((end - start) / 1E9) * (34_300d / 2d);
 
-                        if (distance > 10 && distance < 40) {
+                        if (distance > 10 && distance < 100) {
                             relayPin.high();
                             if (DEBUG) System.out.println(distance + ", relay " + relayPin.getName());
                         } else {
@@ -88,7 +88,7 @@ public class USSS {
                 e.printStackTrace();
             } finally {
                 _locker.unlock();
-                Thread.sleep(280);
+                Thread.sleep(180);
             }
         }
         trigPin.low();

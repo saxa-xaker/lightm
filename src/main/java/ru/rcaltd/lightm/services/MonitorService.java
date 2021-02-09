@@ -18,6 +18,7 @@ public class MonitorService {
     final USSS usss4;
     final USSS usss5;
     final USSS usss6;
+
     @Autowired
     PowerService powerService;
 
@@ -36,9 +37,9 @@ public class MonitorService {
         monitorStart(usss1, RaspiPin.GPIO_25, RaspiPin.GPIO_07, RaspiPin.GPIO_00);
         monitorStart(usss2, RaspiPin.GPIO_27, RaspiPin.GPIO_01, RaspiPin.GPIO_02);
         monitorStart(usss3, RaspiPin.GPIO_23, RaspiPin.GPIO_03, RaspiPin.GPIO_04);
-//        monitorStart(usss4, RaspiPin.GPIO_26, RaspiPin.GPIO_05, RaspiPin.GPIO_12);
-//        monitorStart(usss5, RaspiPin.GPIO_22, RaspiPin.GPIO_13, RaspiPin.GPIO_06);
-//        monitorStart(usss6, RaspiPin.GPIO_21, RaspiPin.GPIO_14, RaspiPin.GPIO_10);
+        monitorStart(usss4, RaspiPin.GPIO_26, RaspiPin.GPIO_05, RaspiPin.GPIO_12);
+        monitorStart(usss5, RaspiPin.GPIO_22, RaspiPin.GPIO_13, RaspiPin.GPIO_06);
+        monitorStart(usss6, RaspiPin.GPIO_21, RaspiPin.GPIO_14, RaspiPin.GPIO_10);
 
         System.out.println("INIT DONE");
 
