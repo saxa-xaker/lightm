@@ -1,10 +1,12 @@
-Система должна отслеживать все 6 датчиков и включать реле, сооответствующее датчику.
-Человек идёт вдоль датчиков. Как только он попадает в поле зрения датчика, срабатывает реле и зажигается лампа.
+Algo:
+System have to looking all 6 sensors and turn on the relays to correspond to sensors.
 
-Дано:
-1. Ультразвуковой датчик расстояния HC-SR04 - 6 штук + резисторы для понижения тока для Малинки 
-(см схему подключения http://wikihandbk.com/ruwiki/images/f/f9/Rasp2_hc-sr04.png)
-2. Вертикальная светодиодная лента х2 - 6 штук
-3. Реле замыкания/размыкания тока для светодиодных лент х2 - 6 штук
-4. Питание, соединительные провода, термоусадка и т.д.
+1. HC-SR04 - 6 peaces 
+(look for http://wikihandbk.com/ruwiki/images/f/f9/Rasp2_hc-sr04.png)
+2. Lamps
+3. Relays
+4. Wiring
 5. Raspberry pi 4B+
+(https://pinout.xyz/pinout/)
+To install - clone project, goto lightm directory, then "mvn clean package", then "java -jar /...path../..to.../lightm-2.0-RC.jar"
+Project required openJDK11 or higher, wiringPi 2.52 or higher.
